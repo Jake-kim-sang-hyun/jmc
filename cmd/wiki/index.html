@@ -19,6 +19,7 @@
                     <th class="col-menu">메뉴/가격</th>
                     <th class="col-rating">평점</th>
                     <th class="col-category">카테고리</th>
+                    <th class="col-location">위치</th>
                     <th class="col-kakao">카카오 지도</th>
                     <th>소감</th>
                     <th class="col-delete">삭제</th>
@@ -46,6 +47,7 @@
                         </select>
                     </td>
                     <td data-field="categories" class="tag-cell"><div class="tag-container">{{range .Categories}}<span class="tag" data-tag="{{.}}">{{.}} <button type="button" class="tag-remove" aria-label="태그 삭제">×</button></span>{{end}}<input type="text" class="tag-input" placeholder="태그 입력..." maxlength="50"></div></td>
+                    <td data-field="locations" class="tag-cell"><div class="tag-container">{{range .Locations}}<span class="tag" data-tag="{{.}}">{{.}} <button type="button" class="tag-remove" aria-label="태그 삭제">×</button></span>{{end}}<input type="text" class="tag-input" placeholder="위치 입력..." maxlength="50"></div></td>
                     <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
                     <td contenteditable="true" data-field="description">{{nl2br .Description}}</td>
                     <td class="col-delete"><input type="checkbox" class="row-check"></td>
@@ -70,6 +72,7 @@
                             <option value="5">🌟🌟🌟🌟🌟</option>
                         </select>
                     </td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td contenteditable="true" data-field="menu-description">{{nl2br .Description}}</td>

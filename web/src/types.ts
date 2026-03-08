@@ -10,6 +10,7 @@ export interface Restaurant {
   name: string;
   rating: number;
   categories: string[];
+  locations: string[];
   kakao_url: string;
   visited: boolean;
   description: string;

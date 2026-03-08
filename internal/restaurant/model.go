@@ -30,6 +30,7 @@ type Restaurant struct {
 	Name        string   `json:"name"`
 	Rating      float64  `json:"rating"`
 	Categories  []string `json:"categories"`
+	Locations   []string `json:"locations"`
 	KakaoURL    string   `json:"kakao_url"`
 	Visited     bool     `json:"visited"`
 	Description string   `json:"description"`
@@ -49,6 +50,9 @@ func (r *Restaurant) Validate() error {
 	// 변경: nil만 방지 (빈 배열 허용)
 	if r.Categories == nil {
 		return fmt.Errorf("categories 필드는 필수입니다: %s", r.Name)
+	}
+	if r.Locations == nil {
+		return fmt.Errorf("locations 필드는 필수입니다: %s", r.Name)
 	}
 	// 카카오톡 맵 url은 없어도 됨(빈문자열로 저장)
 	for i, m := range r.Menus {

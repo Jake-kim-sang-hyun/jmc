@@ -14,14 +14,18 @@ import {
 } from "../dom";
 import { buildRatingSelect } from "../rating";
 
-function buildTagCellForTest(categories: string[]): string {
-  const tagsHtml = categories
+function buildTagCellForTest(
+  field: string,
+  tags: string[],
+  placeholder: string,
+): string {
+  const tagsHtml = tags
     .map(
       (c) =>
-        `<span class="tag" data-tag="${c}">${c} <button type="button" class="tag-remove">x</button></span>`,
+        `<span class="tag" data-tag="${c}">${c} <button type="button" class="tag-remove">×</button></span>`,
     )
     .join("");
-  return `<td data-field="categories" class="tag-cell"><div class="tag-container">${tagsHtml}<input type="text" class="tag-input" placeholder="태그 입력..."></div></td>`;
+  return `<td data-field="${field}" class="tag-cell"><div class="tag-container">${tagsHtml}<input type="text" class="tag-input" placeholder="${placeholder}"></div></td>`;
 }
 
 function makeRow(
@@ -31,6 +35,7 @@ function makeRow(
     name?: string;
     rating?: number;
     categories?: string[];
+    locations?: string[];
     kakaoUrl?: string;
     visited?: boolean;
     description?: string;
@@ -44,12 +49,14 @@ function makeRow(
   }
   const ratingValue = overrides.rating ?? 0;
   const categories = overrides.categories ?? [];
+  const locations = overrides.locations ?? [];
   tr.innerHTML = `
     <td class="col-visited" data-field="visited"><input type="checkbox" class="visited-check"${overrides.visited ? " checked" : ""}></td>
     <td contenteditable="true" data-field="name">${overrides.name ?? ""}</td>
     <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
     <td data-field="rating">${buildRatingSelect(ratingValue)}</td>
-    ${buildTagCellForTest(categories)}
+    ${buildTagCellForTest("categories", categories, "태그 입력...")}
+    ${buildTagCellForTest("locations", locations, "위치 입력...")}
     <td contenteditable="true" data-field="kakao_url">${overrides.kakaoUrl ?? ""}</td>
     <td contenteditable="true" data-field="description">${overrides.description ?? ""}</td>
     <td class="col-delete"><input type="checkbox" class="row-check"></td>
@@ -78,6 +85,7 @@ function makeMenuRow(
     <td data-field="menu-rating">${buildRatingSelect(ratingValue)}</td>
     <td></td>
     <td></td>
+    <td></td>
     <td contenteditable="true" data-field="menu-description">${overrides.description ?? ""}</td>
     <td class="col-delete"><input type="checkbox" class="menu-check"${overrides.checked ? " checked" : ""}></td>
   `;
@@ -96,9 +104,9 @@ describe("createEmptyRow", () => {
     expect(tr.classList.contains("restaurant-row")).toBe(true);
   });
 
-  it("8개의 td를 포함한다", () => {
+  it("9개의 td를 포함한다", () => {
     const tr = createEmptyRow();
-    expect(tr.querySelectorAll("td").length).toBe(8);
+    expect(tr.querySelectorAll("td").length).toBe(9);
   });
 
   it("rating select 드롭다운을 포함한다", () => {
@@ -132,13 +140,16 @@ describe("createEmptyRow", () => {
     expect(tr.querySelector("[data-field='description']")).not.toBeNull();
   });
 
-  it("태그 입력 셀(tag-cell)을 포함한다", () => {
+  it("카테고리·위치 태그 입력 셀(tag-cell)을 포함한다", () => {
     const tr = createEmptyRow();
-    const tagCell = tr.querySelector("[data-field='categories']");
-    expect(tagCell).not.toBeNull();
-    expect(tagCell?.classList.contains("tag-cell")).toBe(true);
-    expect(tagCell?.querySelector(".tag-container")).not.toBeNull();
-    expect(tagCell?.querySelector(".tag-input")).not.toBeNull();
+    const catCell = tr.querySelector("[data-field='categories']");
+    const locCell = tr.querySelector("[data-field='locations']");
+    expect(catCell).not.toBeNull();
+    expect(locCell).not.toBeNull();
+    expect(catCell?.classList.contains("tag-cell")).toBe(true);
+    expect(locCell?.classList.contains("tag-cell")).toBe(true);
+    expect(catCell?.querySelector(".tag-input")).not.toBeNull();
+    expect(locCell?.querySelector(".tag-input")).not.toBeNull();
   });
 });
 
@@ -153,9 +164,9 @@ describe("createMenuRow", () => {
     expect(tr.dataset.status).toBe("new-menu");
   });
 
-  it("8개의 td를 포함한다", () => {
+  it("9개의 td를 포함한다", () => {
     const tr = createMenuRow();
-    expect(tr.querySelectorAll("td").length).toBe(8);
+    expect(tr.querySelectorAll("td").length).toBe(9);
   });
 
   it("메뉴명, 가격, 소감 필드를 포함한다", () => {
@@ -204,6 +215,7 @@ describe("readRow", () => {
       name: "테스트식당",
       rating: 3,
       categories: ["한식", "분식"],
+      locations: [],
       kakao_url: "https://example.com",
       visited: true,
       description: "맛있는 집",
@@ -271,7 +283,21 @@ describe("readRow", () => {
     expect(result.menus[0].name).toBe("라멘");
   });
 
-  it("빈 categories는 빈 배열을 반환한다", () => {
+  it("locations 태그를 올바르게 읽는다", () => {
+    const tbody = document.createElement("tbody");
+    const tr = makeRow({
+      name: "테스트식당",
+      rating: 3,
+      categories: ["한식"],
+      locations: ["강남", "역삼"],
+      kakaoUrl: "https://example.com",
+    });
+    tbody.appendChild(tr);
+    const result = readRow(tr);
+    expect(result.locations).toEqual(["강남", "역삼"]);
+  });
+
+  it("빈 categories와 locations는 빈 배열을 반환한다", () => {
     const tbody = document.createElement("tbody");
     const tr = makeRow({
       name: "빈식당",
@@ -281,6 +307,7 @@ describe("readRow", () => {
     tbody.appendChild(tr);
     const result = readRow(tr);
     expect(result.categories).toEqual([]);
+    expect(result.locations).toEqual([]);
   });
 
   it("rating 0은 숫자 0을 반환한다", () => {

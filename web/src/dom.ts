@@ -1,14 +1,18 @@
 import type { Restaurant, Menu, SavePayload } from "./types";
 import { buildRatingSelect } from "./rating";
 
-function buildTagCell(categories: string[] = []): string {
-  const tagsHtml = categories
+function buildTagCell(
+  field: string,
+  tags: string[],
+  placeholder: string,
+): string {
+  const tagsHtml = tags
     .map(
       (c) =>
         `<span class="tag" data-tag="${escapeTagAttr(c)}">${escapeTagText(c)} <button type="button" class="tag-remove" aria-label="태그 삭제">×</button></span>`,
     )
     .join("");
-  return `<td data-field="categories" class="tag-cell"><div class="tag-container">${tagsHtml}<input type="text" class="tag-input" placeholder="태그 입력..." maxlength="50"></div></td>`;
+  return `<td data-field="${field}" class="tag-cell"><div class="tag-container">${tagsHtml}<input type="text" class="tag-input" placeholder="${placeholder}" maxlength="50"></div></td>`;
 }
 
 function escapeTagAttr(s: string): string {
@@ -36,7 +40,8 @@ export function createEmptyRow(): HTMLTableRowElement {
     <td contenteditable="true" data-field="name"></td>
     <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
     <td data-field="rating">${buildRatingSelect(0)}</td>
-    ${buildTagCell([])}
+    ${buildTagCell("categories", [], "태그 입력...")}
+    ${buildTagCell("locations", [], "위치 입력...")}
     <td contenteditable="true" data-field="kakao_url"></td>
     <td contenteditable="true" data-field="description"></td>
     <td class="col-delete"><input type="checkbox" class="row-check"></td>
@@ -54,6 +59,7 @@ export function createMenuRow(): HTMLTableRowElement {
     <td contenteditable="true" data-field="menu-name"></td>
     <td contenteditable="true" data-field="menu-price"></td>
     <td data-field="menu-rating">${buildRatingSelect(0)}</td>
+    <td></td>
     <td></td>
     <td></td>
     <td contenteditable="true" data-field="menu-description"></td>
@@ -74,6 +80,15 @@ export function formatPriceCell(td: HTMLElement): void {
   if (!isNaN(n) && n > 0) {
     td.textContent = formatPrice(n);
   }
+}
+
+function readTagsFromCell(tr: HTMLTableRowElement, field: string): string[] {
+  const cell = tr.querySelector<HTMLElement>(`[data-field='${field}']`);
+  const container = cell?.querySelector<HTMLElement>(".tag-container");
+  if (!container) return [];
+  return Array.from(container.querySelectorAll<HTMLElement>(".tag[data-tag]"))
+    .map((el) => el.dataset.tag?.trim())
+    .filter((s): s is string => Boolean(s));
 }
 
 function readTextWithBreaks(el: HTMLElement): string {
@@ -128,27 +143,27 @@ function addTagFromInput(
 }
 
 function attachTagCellEvents(tr: HTMLTableRowElement): void {
-  const cell = tr.querySelector<HTMLElement>("[data-field='categories']");
-  if (!cell) return;
-  const container = cell.querySelector<HTMLElement>(".tag-container");
-  const input = cell.querySelector<HTMLInputElement>(".tag-input");
-  if (!container || !input) return;
+  tr.querySelectorAll<HTMLElement>(".tag-cell").forEach((cell) => {
+    const container = cell.querySelector<HTMLElement>(".tag-container");
+    const input = cell.querySelector<HTMLInputElement>(".tag-input");
+    if (!container || !input) return;
 
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      addTagFromInput(input, container, tr);
-    }
-  });
-  input.addEventListener("blur", () => {
-    if (input.value.trim()) addTagFromInput(input, container, tr);
-  });
-  container.addEventListener("click", (e) => {
-    const target = e.target as HTMLElement;
-    if (target.classList.contains("tag-remove")) {
-      target.closest(".tag")?.remove();
-      markRowUpdated(tr);
-    }
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === ",") {
+        e.preventDefault();
+        addTagFromInput(input, container, tr);
+      }
+    });
+    input.addEventListener("blur", () => {
+      if (input.value.trim()) addTagFromInput(input, container, tr);
+    });
+    container.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains("tag-remove")) {
+        target.closest(".tag")?.remove();
+        markRowUpdated(tr);
+      }
+    });
   });
 }
 
@@ -306,12 +321,8 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
     .textContent!.trim();
   const ratingSelect = tr.querySelector<HTMLSelectElement>(".rating-select");
   const rating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
-  const tagContainer = tr.querySelector<HTMLElement>(".tag-container");
-  const categories = tagContainer
-    ? Array.from(tagContainer.querySelectorAll<HTMLElement>(".tag[data-tag]"))
-        .map((el) => el.dataset.tag?.trim())
-        .filter((s): s is string => Boolean(s))
-    : [];
+  const categories = readTagsFromCell(tr, "categories");
+  const locations = readTagsFromCell(tr, "locations");
   const kakaoUrl = tr
     .querySelector<HTMLElement>("[data-field='kakao_url']")!
     .textContent!.trim();
@@ -331,6 +342,7 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
     name,
     rating,
     categories,
+    locations,
     kakao_url: kakaoUrl,
     visited,
     description,

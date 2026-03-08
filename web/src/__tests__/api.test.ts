@@ -12,7 +12,7 @@ describe("saveBatch", () => {
     vi.stubGlobal("fetch", mockFetch);
 
     const payload: SavePayload = {
-      new: [{ name: "새식당", rating: "⭐", categories: ["한식"], kakao_url: "https://a.com", visited: false }],
+      new: [{ name: "새식당", rating: 3, categories: ["한식"], locations: [], kakao_url: "https://a.com", visited: false, description: "", menus: [] }],
       update: [],
       delete: [],
     };

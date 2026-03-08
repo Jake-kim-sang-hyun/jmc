@@ -10,7 +10,8 @@ function buildTable(): HTMLTableElement {
         <td contenteditable="true" data-field="name">식당1</td>
         <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
         <td data-field="rating"><select class="rating-select"><option value="0">-</option></select></td>
-        <td data-field="categories" class="tag-cell"><div class="tag-container"><span class="tag" data-tag="한식">한식 <button class="tag-remove">x</button></span><input type="text" class="tag-input"></div></td>
+        <td data-field="categories" class="tag-cell"><div class="tag-container"><span class="tag" data-tag="한식">한식 <button class="tag-remove">×</button></span><input type="text" class="tag-input"></div></td>
+        <td data-field="locations" class="tag-cell"><div class="tag-container"><input type="text" class="tag-input"></div></td>
         <td contenteditable="true" data-field="kakao_url">url</td>
         <td contenteditable="true" data-field="description">소감</td>
         <td class="col-delete"><input type="checkbox" class="row-check"></td>
@@ -22,6 +23,7 @@ function buildTable(): HTMLTableElement {
         <td data-field="menu-rating"><select class="rating-select"><option value="0">-</option></select></td>
         <td></td>
         <td></td>
+        <td></td>
         <td contenteditable="true" data-field="menu-description">맛있다</td>
         <td class="col-delete"><input type="checkbox" class="menu-check"></td>
       </tr>
@@ -30,7 +32,8 @@ function buildTable(): HTMLTableElement {
         <td contenteditable="true" data-field="name">식당2</td>
         <td class="col-menu"><button type="button" class="btn-add-menu">+</button></td>
         <td data-field="rating"><select class="rating-select"><option value="0">-</option></select></td>
-        <td data-field="categories" class="tag-cell"><div class="tag-container"><span class="tag" data-tag="일식">일식 <button class="tag-remove">x</button></span><input type="text" class="tag-input"></div></td>
+        <td data-field="categories" class="tag-cell"><div class="tag-container"><span class="tag" data-tag="일식">일식 <button class="tag-remove">×</button></span><input type="text" class="tag-input"></div></td>
+        <td data-field="locations" class="tag-cell"><div class="tag-container"><input type="text" class="tag-input"></div></td>
         <td contenteditable="true" data-field="kakao_url">url2</td>
         <td contenteditable="true" data-field="description">소감2</td>
         <td class="col-delete"><input type="checkbox" class="row-check"></td>

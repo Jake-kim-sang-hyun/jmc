@@ -40,6 +40,10 @@ td:focus-within {
     width: 110px;
 }
 
+.col-location {
+    width: 110px;
+}
+
 .col-kakao {
     width: 180px;
     word-break: break-all;

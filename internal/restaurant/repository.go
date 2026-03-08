@@ -24,7 +24,9 @@ func (r *Repository) FindAll() (*RestaurantData, error) {
 	if err := json.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("JSON 파싱 실패: %w", err)
 	}
-
+	for i := range result.Restaurants {
+		normalizeRestaurant(&result.Restaurants[i])
+	}
 	return &result, nil
 }
 
@@ -83,10 +85,26 @@ func (r *Repository) Delete(name string) error {
 	return fmt.Errorf("식당을 찾을 수 없습니다: %s", name)
 }
 
+func normalizeRestaurant(rest *Restaurant) {
+	if rest.Locations == nil {
+		rest.Locations = []string{}
+	}
+	if rest.Categories == nil {
+		rest.Categories = []string{}
+	}
+}
+
 func (r *Repository) SaveBatch(req SaveRequest) (*RestaurantData, error) {
 	data, err := r.FindAll()
 	if err != nil {
 		return nil, err
+	}
+
+	for i := range req.New {
+		normalizeRestaurant(&req.New[i])
+	}
+	for i := range req.Update {
+		normalizeRestaurant(&req.Update[i])
 	}
 
 	deleteSet := make(map[string]bool, len(req.Delete))

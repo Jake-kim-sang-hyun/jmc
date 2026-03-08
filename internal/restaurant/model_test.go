@@ -61,14 +61,14 @@ func TestMenuValidate_ZeroRating(t *testing.T) {
 }
 
 func TestRestaurantValidate_MissingName(t *testing.T) {
-	r := Restaurant{Rating: 3, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	r := Restaurant{Rating: 3, Categories: []string{"한식"}, Locations: []string{}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err == nil {
 		t.Fatal("name이 없는데 에러가 발생하지 않음")
 	}
 }
 
 func TestRestaurantValidate_RatingOutOfRange(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: -1, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	r := Restaurant{Name: "테스트", Rating: -1, Categories: []string{"한식"}, Locations: []string{}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err == nil {
 		t.Fatal("rating이 범위 밖인데 에러가 발생하지 않음")
 	}
@@ -80,35 +80,42 @@ func TestRestaurantValidate_RatingOutOfRange(t *testing.T) {
 }
 
 func TestRestaurantValidate_RatingNotHalfStep(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: 2.3, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	r := Restaurant{Name: "테스트", Rating: 2.3, Categories: []string{"한식"}, Locations: []string{}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err == nil {
 		t.Fatal("rating이 0.5 단위가 아닌데 에러가 발생하지 않음")
 	}
 }
 
 func TestRestaurantValidate_EmptyCategories(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: 3, Categories: []string{}, KakaoURL: "https://example.com"}
+	r := Restaurant{Name: "테스트", Rating: 3, Categories: []string{}, Locations: []string{}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err != nil {
 		t.Fatalf("빈 categories는 허용되어야 함: %v", err)
 	}
 }
 
 func TestRestaurantValidate_NilCategories(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: 3, Categories: nil, KakaoURL: "https://example.com"}
+	r := Restaurant{Name: "테스트", Rating: 3, Categories: nil, Locations: []string{}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err == nil {
 		t.Fatal("nil categories인데 에러가 발생하지 않음")
 	}
 }
 
+func TestRestaurantValidate_NilLocations(t *testing.T) {
+	r := Restaurant{Name: "테스트", Rating: 3, Categories: []string{"한식"}, Locations: nil, KakaoURL: "https://example.com"}
+	if err := r.Validate(); err == nil {
+		t.Fatal("nil locations인데 에러가 발생하지 않음")
+	}
+}
+
 func TestRestaurantValidate_Valid(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: 4.5, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	r := Restaurant{Name: "테스트", Rating: 4.5, Categories: []string{"한식"}, Locations: []string{}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err != nil {
 		t.Fatalf("유효한 데이터인데 에러 발생: %v", err)
 	}
 }
 
 func TestRestaurantValidate_ZeroRating(t *testing.T) {
-	r := Restaurant{Name: "테스트", Rating: 0, Categories: []string{"한식"}, KakaoURL: "https://example.com"}
+	r := Restaurant{Name: "테스트", Rating: 0, Categories: []string{"한식"}, Locations: []string{}, KakaoURL: "https://example.com"}
 	if err := r.Validate(); err != nil {
 		t.Fatalf("rating 0은 유효한데 에러 발생: %v", err)
 	}
@@ -119,6 +126,7 @@ func TestRestaurantValidate_InvalidMenu(t *testing.T) {
 		Name:       "테스트",
 		Rating:     3,
 		Categories: []string{"한식"},
+		Locations:  []string{},
 		KakaoURL:   "https://example.com",
 		Menus:      []Menu{{Name: "", Price: 1000}},
 	}
@@ -132,6 +140,7 @@ func TestRestaurantValidate_InvalidMenuRating(t *testing.T) {
 		Name:       "테스트",
 		Rating:     3,
 		Categories: []string{"한식"},
+		Locations:  []string{},
 		KakaoURL:   "https://example.com",
 		Menus:      []Menu{{Name: "라멘", Rating: 6, Price: 9000}},
 	}
@@ -145,6 +154,7 @@ func TestRestaurantValidate_WithValidMenus(t *testing.T) {
 		Name:       "테스트",
 		Rating:     3,
 		Categories: []string{"한식"},
+		Locations:  []string{},
 		KakaoURL:   "https://example.com",
 		Menus: []Menu{
 			{Name: "비빔밥", Rating: 4, Price: 8000, Description: "맛있음"},
