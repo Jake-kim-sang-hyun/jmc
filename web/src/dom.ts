@@ -148,7 +148,15 @@ function attachTagCellEvents(tr: HTMLTableRowElement): void {
     const input = cell.querySelector<HTMLInputElement>(".tag-input");
     if (!container || !input) return;
 
+    let composing = false;
+    input.addEventListener("compositionstart", () => {
+      composing = true;
+    });
+    input.addEventListener("compositionend", () => {
+      composing = false;
+    });
     input.addEventListener("keydown", (e) => {
+      if (composing || e.isComposing) return;
       if (e.key === "Enter" || e.key === ",") {
         e.preventDefault();
         addTagFromInput(input, container, tr);
