@@ -1,7 +1,11 @@
 import type { Restaurant, SavePayload } from "./types";
 
-export async function fetchRecommend(): Promise<Restaurant | null> {
-  const response = await fetch("/api/restaurants/recommend");
+export type Fetcher = typeof fetch;
+
+export async function fetchRecommend(
+  fetcher: Fetcher = fetch
+): Promise<Restaurant | null> {
+  const response = await fetcher("/api/restaurants/recommend");
   if (!response.ok) {
     const text = await response.text();
     throw new Error(text);
@@ -10,8 +14,11 @@ export async function fetchRecommend(): Promise<Restaurant | null> {
   return data;
 }
 
-export async function saveBatch(payload: SavePayload): Promise<void> {
-  const response = await fetch("/api/restaurants/save", {
+export async function saveBatch(
+  payload: SavePayload,
+  fetcher: Fetcher = fetch
+): Promise<void> {
+  const response = await fetcher("/api/restaurants/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
