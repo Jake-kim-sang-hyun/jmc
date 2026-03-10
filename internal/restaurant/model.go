@@ -75,9 +75,26 @@ func (d *RestaurantData) Validate() error {
 	return nil
 }
 
+type CLIConfig struct {
+	Port int `json:"port"`
+}
+
+type SearchFilter struct {
+	Name       string   `json:"name"`
+	Categories []string `json:"categories"`
+	SortBy     string   `json:"sort_by"`
+	Visited    *bool    `json:"visited"`
+}
+
+type Search struct {
+	Filters  []SearchFilter `json:"filters"`
+	Selected *int           `json:"selected"`
+}
+
 type RestaurantData struct {
-	Restaurants []Restaurant   `json:"restaurants"`
-	Config      map[string]any `json:"config"`
+	Restaurants []Restaurant `json:"restaurants"`
+	CLIConfig   CLIConfig    `json:"cli_config"`
+	Search      Search       `json:"search"`
 }
 
 type SaveRequest struct {

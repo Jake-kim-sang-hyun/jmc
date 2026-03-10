@@ -35,9 +35,20 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 func Wiki() {
-	fmt.Println("위키 서버가 시작되었습니다. http://localhost:8080 에서 접속해주세요.")
-
 	repo := restaurant.NewRepository("data.json")
+	data, err := repo.FindAll()
+	if err != nil {
+		log.Fatalf("data.json 읽기 실패: %v", err)
+	}
+
+	port := data.CLIConfig.Port
+	if port == 0 {
+		port = 8080
+	}
+	addr := fmt.Sprintf(":%d", port)
+
+	fmt.Printf("위키 서버가 시작되었습니다. http://localhost%s 에서 접속해주세요.\n", addr)
+
 	service := restaurant.NewService(repo)
 	controller := restaurant.NewController(service, wikiFiles)
 
@@ -51,5 +62,5 @@ func Wiki() {
 	mux.HandleFunc("DELETE /api/restaurants/{name}", controller.HandleDelete)
 	mux.HandleFunc("POST /api/restaurants/save", controller.HandleSave)
 
-	http.ListenAndServe(":8080", loggingMiddleware(mux))
+	http.ListenAndServe(addr, loggingMiddleware(mux))
 }

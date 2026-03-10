@@ -18,7 +18,11 @@ func Init() {
 		repo := restaurant.NewRepository(filePath)
 		data := restaurant.RestaurantData{
 			Restaurants: []restaurant.Restaurant{},
-			Config:      map[string]any{},
+			CLIConfig:   restaurant.CLIConfig{Port: 8080},
+			Search: restaurant.Search{
+				Filters:  []restaurant.SearchFilter{},
+				Selected: nil,
+			},
 		}
 		if err := repo.Save(&data); err != nil {
 			fmt.Fprintf(os.Stderr, "data.json 파일을 생성할 수 없습니다: %v\n", err)
