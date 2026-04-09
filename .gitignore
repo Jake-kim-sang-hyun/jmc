@@ -20,4 +20,4 @@ cmd/wiki/
 # Node
 web/node_modules/
 
-.omc/*
+**/.omc/
