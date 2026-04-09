@@ -44,6 +44,7 @@ export function createEmptyRow(): HTMLTableRowElement {
     ${buildTagCell("locations", [], "위치 입력...")}
     <td contenteditable="true" data-field="kakao_url"></td>
     <td contenteditable="true" data-field="description"></td>
+    <td class="col-last-visited" data-field="last_visited_at"><input type="date" class="last-visited-input"></td>
     <td class="col-delete"><input type="checkbox" class="row-check"></td>
   `;
   attachRowEvents(tr);
@@ -63,6 +64,7 @@ export function createMenuRow(): HTMLTableRowElement {
     <td></td>
     <td></td>
     <td contenteditable="true" data-field="menu-description"></td>
+    <td class="col-last-visited"></td>
     <td class="col-delete"><input type="checkbox" class="menu-check"></td>
   `;
   attachMenuRowEvents(tr);
@@ -115,6 +117,18 @@ function markRowUpdated(tr: HTMLTableRowElement): void {
   }
 }
 
+function refreshTagInputPlaceholder(
+  container: HTMLElement,
+  input: HTMLInputElement,
+): void {
+  const hasTag = container.querySelector(".tag") !== null;
+  if (hasTag) {
+    input.placeholder = "";
+  } else {
+    input.placeholder = input.dataset.originalPlaceholder ?? "";
+  }
+}
+
 function addTagFromInput(
   input: HTMLInputElement,
   container: HTMLElement,
@@ -139,7 +153,9 @@ function addTagFromInput(
     container.insertBefore(span, input);
   }
   input.value = "";
+  refreshTagInputPlaceholder(container, input);
   markRowUpdated(tr);
+  document.dispatchEvent(new CustomEvent("jmc:tags-changed"));
 }
 
 function attachTagCellEvents(tr: HTMLTableRowElement): void {
@@ -147,6 +163,11 @@ function attachTagCellEvents(tr: HTMLTableRowElement): void {
     const container = cell.querySelector<HTMLElement>(".tag-container");
     const input = cell.querySelector<HTMLInputElement>(".tag-input");
     if (!container || !input) return;
+
+    if (input.dataset.originalPlaceholder === undefined) {
+      input.dataset.originalPlaceholder = input.placeholder;
+    }
+    refreshTagInputPlaceholder(container, input);
 
     let composing = false;
     input.addEventListener("compositionstart", () => {
@@ -169,7 +190,9 @@ function attachTagCellEvents(tr: HTMLTableRowElement): void {
       const target = e.target as HTMLElement;
       if (target.classList.contains("tag-remove")) {
         target.closest(".tag")?.remove();
+        refreshTagInputPlaceholder(container, input);
         markRowUpdated(tr);
+        document.dispatchEvent(new CustomEvent("jmc:tags-changed"));
       }
     });
   });
@@ -195,6 +218,13 @@ export function attachRowEvents(tr: HTMLTableRowElement): void {
   const visitedCheck = tr.querySelector<HTMLInputElement>(".visited-check");
   if (visitedCheck) {
     visitedCheck.addEventListener("change", () => markRowUpdated(tr));
+  }
+
+  const lastVisitedInput = tr.querySelector<HTMLInputElement>(
+    ".last-visited-input",
+  );
+  if (lastVisitedInput) {
+    lastVisitedInput.addEventListener("change", () => markRowUpdated(tr));
   }
 
   const rowCheck = tr.querySelector<HTMLInputElement>(".row-check");
@@ -338,6 +368,11 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
   const description = readTextWithBreaks(
     tr.querySelector<HTMLElement>("[data-field='description']")!,
   );
+  const lastVisitedInput = tr.querySelector<HTMLInputElement>(
+    ".last-visited-input",
+  );
+  const lastVisitedRaw = lastVisitedInput?.value.trim() ?? "";
+  const lastVisitedAt = lastVisitedRaw === "" ? null : lastVisitedRaw;
 
   const menuRows = getMenuRows(tr);
   const menus: Menu[] = [];
@@ -355,6 +390,7 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
     visited,
     description,
     menus,
+    last_visited_at: lastVisitedAt,
   };
 }
 

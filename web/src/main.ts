@@ -11,6 +11,7 @@ import {
 } from "./dom";
 import { fetchRecommend, saveBatch } from "./api";
 import { initKeyboardNavigation } from "./navigate";
+import { initTagFilters } from "./filter";
 
 const table = document.querySelector<HTMLTableElement>("table")!;
 const tbody = document.querySelector<HTMLTableSectionElement>("#table-body")!;
@@ -87,3 +88,5 @@ tbody
 tbody
   .querySelectorAll<HTMLTableRowElement>("tr.menu-row")
   .forEach(attachMenuRowEvents);
+
+initTagFilters(tbody);

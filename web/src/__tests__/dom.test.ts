@@ -59,6 +59,7 @@ function makeRow(
     ${buildTagCellForTest("locations", locations, "위치 입력...")}
     <td contenteditable="true" data-field="kakao_url">${overrides.kakaoUrl ?? ""}</td>
     <td contenteditable="true" data-field="description">${overrides.description ?? ""}</td>
+    <td class="col-last-visited" data-field="last_visited_at"><input type="date" class="last-visited-input"></td>
     <td class="col-delete"><input type="checkbox" class="row-check"></td>
   `;
   return tr;
@@ -87,6 +88,7 @@ function makeMenuRow(
     <td></td>
     <td></td>
     <td contenteditable="true" data-field="menu-description">${overrides.description ?? ""}</td>
+    <td class="col-last-visited"></td>
     <td class="col-delete"><input type="checkbox" class="menu-check"${overrides.checked ? " checked" : ""}></td>
   `;
   return tr;
@@ -104,9 +106,9 @@ describe("createEmptyRow", () => {
     expect(tr.classList.contains("restaurant-row")).toBe(true);
   });
 
-  it("9개의 td를 포함한다", () => {
+  it("10개의 td를 포함한다", () => {
     const tr = createEmptyRow();
-    expect(tr.querySelectorAll("td").length).toBe(9);
+    expect(tr.querySelectorAll("td").length).toBe(10);
   });
 
   it("rating select 드롭다운을 포함한다", () => {
@@ -164,9 +166,9 @@ describe("createMenuRow", () => {
     expect(tr.dataset.status).toBe("new-menu");
   });
 
-  it("9개의 td를 포함한다", () => {
+  it("10개의 td를 포함한다", () => {
     const tr = createMenuRow();
-    expect(tr.querySelectorAll("td").length).toBe(9);
+    expect(tr.querySelectorAll("td").length).toBe(10);
   });
 
   it("메뉴명, 가격, 소감 필드를 포함한다", () => {
@@ -220,6 +222,7 @@ describe("readRow", () => {
       visited: true,
       description: "맛있는 집",
       menus: [],
+      last_visited_at: null,
     });
   });
 

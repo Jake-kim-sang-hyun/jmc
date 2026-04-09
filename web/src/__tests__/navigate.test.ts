@@ -14,6 +14,7 @@ function buildTable(): HTMLTableElement {
         <td data-field="locations" class="tag-cell"><div class="tag-container"><input type="text" class="tag-input"></div></td>
         <td contenteditable="true" data-field="kakao_url">url</td>
         <td contenteditable="true" data-field="description">소감</td>
+        <td class="col-last-visited" data-field="last_visited_at"><input type="date" class="last-visited-input"></td>
         <td class="col-delete"><input type="checkbox" class="row-check"></td>
       </tr>
       <tr>
@@ -25,6 +26,7 @@ function buildTable(): HTMLTableElement {
         <td></td>
         <td></td>
         <td contenteditable="true" data-field="menu-description">맛있다</td>
+        <td class="col-last-visited"></td>
         <td class="col-delete"><input type="checkbox" class="menu-check"></td>
       </tr>
       <tr>
@@ -36,6 +38,7 @@ function buildTable(): HTMLTableElement {
         <td data-field="locations" class="tag-cell"><div class="tag-container"><input type="text" class="tag-input"></div></td>
         <td contenteditable="true" data-field="kakao_url">url2</td>
         <td contenteditable="true" data-field="description">소감2</td>
+        <td class="col-last-visited" data-field="last_visited_at"><input type="date" class="last-visited-input"></td>
         <td class="col-delete"><input type="checkbox" class="row-check"></td>
       </tr>
     </tbody>

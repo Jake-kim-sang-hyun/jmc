@@ -15,6 +15,7 @@ export interface Restaurant {
   visited: boolean;
   description: string;
   menus: Menu[];
+  last_visited_at: string | null;
 }
 
 export interface SavePayload {

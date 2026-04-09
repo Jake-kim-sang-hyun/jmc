@@ -27,14 +27,15 @@ func (m *Menu) Validate() error {
 }
 
 type Restaurant struct {
-	Name        string   `json:"name"`
-	Rating      float64  `json:"rating"`
-	Categories  []string `json:"categories"`
-	Locations   []string `json:"locations"`
-	KakaoURL    string   `json:"kakao_url"`
-	Visited     bool     `json:"visited"`
-	Description string   `json:"description"`
-	Menus       []Menu   `json:"menus"`
+	Name          string   `json:"name"`
+	Rating        float64  `json:"rating"`
+	Categories    []string `json:"categories"`
+	Locations     []string `json:"locations"`
+	KakaoURL      string   `json:"kakao_url"`
+	Visited       bool     `json:"visited"`
+	Description   string   `json:"description"`
+	Menus         []Menu   `json:"menus"`
+	LastVisitedAt *string  `json:"last_visited_at,omitempty"`
 }
 
 func (r *Restaurant) Validate() error {

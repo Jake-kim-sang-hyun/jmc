@@ -23,6 +23,23 @@ td:focus-within {
     text-align: center;
 }
 
+.col-last-visited {
+    width: 130px;
+    text-align: center;
+}
+
+.last-visited-input {
+    border: none;
+    background: transparent;
+    font-size: inherit;
+    width: 100%;
+    padding: 2px 4px;
+}
+
+.last-visited-input:focus {
+    outline: none;
+}
+
 .col-name {
     width: 130px;
 }
@@ -75,6 +92,68 @@ td:focus-within {
 
 .actions button:hover {
     background: #f0f0f0;
+}
+
+.name-filter-row {
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.name-filter {
+    width: 240px;
+    padding: 6px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.name-filter:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
+.tag-filters {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tag-filters .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.tag-filters .filter-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+    margin-right: 4px;
+    min-width: 60px;
+}
+
+.tag-filters .filter-tag {
+    padding: 3px 10px;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #333;
+}
+
+.tag-filters .filter-tag:hover {
+    background: #f0f0f0;
+}
+
+.tag-filters .filter-tag.active {
+    background: #4a90d9;
+    border-color: #4a90d9;
+    color: #fff;
 }
 
 tr[data-status="new"] td,
