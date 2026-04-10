@@ -409,7 +409,13 @@ export function collectPayload(tbody: HTMLTableSectionElement): SavePayload {
     if (status === "new") {
       payload.new.push(readRow(tr));
     } else if (status === "updated") {
-      payload.update.push(readRow(tr));
+      const originalName =
+        tr.dataset.originalName ||
+        tr.querySelector<HTMLElement>("[data-field='name']")!.textContent!.trim();
+      payload.update.push({
+        original_name: originalName,
+        restaurant: readRow(tr),
+      });
     } else if (status === "deleted") {
       const name =
         tr.dataset.originalName ||

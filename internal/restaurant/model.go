@@ -135,8 +135,13 @@ type RestaurantData struct {
 	Search      Search       `json:"search"`
 }
 
+type UpdateEntry struct {
+	OriginalName string     `json:"original_name"`
+	Restaurant   Restaurant `json:"restaurant"`
+}
+
 type SaveRequest struct {
-	New    []Restaurant `json:"new"`
-	Update []Restaurant `json:"update"`
-	Delete []string     `json:"delete"`
+	New    []Restaurant  `json:"new"`
+	Update []UpdateEntry `json:"update"`
+	Delete []string      `json:"delete"`
 }

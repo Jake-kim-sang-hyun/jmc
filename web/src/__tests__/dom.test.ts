@@ -656,8 +656,9 @@ describe("collectPayload", () => {
     const payload = collectPayload(makeTbody([{ row: tr }]));
 
     expect(payload.update).toHaveLength(1);
-    expect(payload.update[0].name).toBe("수정식당");
-    expect(payload.update[0].description).toBe("변경됨");
+    expect(payload.update[0].original_name).toBe("수정식당");
+    expect(payload.update[0].restaurant.name).toBe("수정식당");
+    expect(payload.update[0].restaurant.description).toBe("변경됨");
   });
 
   it("deleted 행은 originalName으로 수집한다", () => {

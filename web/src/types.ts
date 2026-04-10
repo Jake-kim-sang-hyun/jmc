@@ -19,9 +19,14 @@ export interface Restaurant {
   last_visited_at: string | null;
 }
 
+export interface UpdateEntry {
+  original_name: string;
+  restaurant: Restaurant;
+}
+
 export interface SavePayload {
   new: Restaurant[];
-  update: Restaurant[];
+  update: UpdateEntry[];
   delete: string[];
 }
 
