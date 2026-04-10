@@ -128,6 +128,19 @@ td:focus-within {
     border-color: #4a90d9;
 }
 
+.cooldown-filter {
+    width: 120px;
+    padding: 6px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.cooldown-filter:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
 .tag-filters {
     margin-bottom: 12px;
     display: flex;

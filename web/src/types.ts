@@ -32,6 +32,7 @@ export interface SearchFilter {
   name_query: string;
   menu_query: string;
   visited: boolean | null;
+  cooldown_days: number | null;
 }
 
 export interface SearchState {

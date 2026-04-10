@@ -85,12 +85,13 @@ type CLIConfig struct {
 }
 
 type SearchFilter struct {
-	Name       string   `json:"name"`
-	Categories []string `json:"categories"`
-	Locations  []string `json:"locations"`
-	NameQuery  string   `json:"name_query"`
-	MenuQuery  string   `json:"menu_query"`
-	Visited    *bool    `json:"visited"`
+	Name         string   `json:"name"`
+	Categories   []string `json:"categories"`
+	Locations    []string `json:"locations"`
+	NameQuery    string   `json:"name_query"`
+	MenuQuery    string   `json:"menu_query"`
+	Visited      *bool    `json:"visited"`
+	CooldownDays *int     `json:"cooldown_days"`
 }
 
 func (f *SearchFilter) Validate() error {

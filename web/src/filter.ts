@@ -6,6 +6,7 @@ type FilterField = "categories" | "locations";
 let nameQuery = "";
 let menuQuery = "";
 let visitedFilter: boolean | null = null; // null=전체, true=방문, false=미방문
+let cooldownDays: number | null = null; // null=미적용, N=N일 이상 지난 식당만
 
 let savedFilters: SearchFilter[] = [];
 let selectedIndex: number | null = null;
@@ -86,6 +87,17 @@ function menuRowMatches(
   return name.includes(query);
 }
 
+function rowMatchesCooldown(tr: HTMLTableRowElement, days: number | null): boolean {
+  if (days === null) return true;
+  const input = tr.querySelector<HTMLInputElement>(".last-visited-input");
+  if (!input || !input.value) return true; // 방문 기록 없으면 표시
+  const lastDate = new Date(input.value);
+  const now = new Date();
+  const diffMs = now.getTime() - lastDate.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return diffDays >= days;
+}
+
 function rowMatchesVisited(tr: HTMLTableRowElement, filter: boolean | null): boolean {
   if (filter === null) return true;
   const checkbox = tr.querySelector<HTMLInputElement>(".visited-check");
@@ -129,7 +141,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
           rowMatchesName(tr, nameQuery) &&
           rowHasAnyTag(tr, "categories", selected.categories) &&
           rowHasAnyTag(tr, "locations", selected.locations) &&
-          rowMatchesVisited(tr, visitedFilter);
+          rowMatchesVisited(tr, visitedFilter) &&
+          rowMatchesCooldown(tr, cooldownDays);
 
         let visible = baseVisible;
         if (visible && menuQuery !== "") {
@@ -149,6 +162,7 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
       name_query: nameQuery,
       menu_query: menuQuery,
       visited: visitedFilter,
+      cooldown_days: cooldownDays,
     };
   }
 
@@ -158,6 +172,7 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     nameQuery = f.name_query;
     menuQuery = f.menu_query;
     visitedFilter = f.visited;
+    cooldownDays = f.cooldown_days;
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
     if (nameInput) nameInput.value = f.name_query;
@@ -165,6 +180,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     if (menuInput) menuInput.value = f.menu_query;
     const visitedSelect = document.querySelector<HTMLSelectElement>("#visited-filter");
     if (visitedSelect) visitedSelect.value = visitedFilter === null ? "all" : visitedFilter ? "true" : "false";
+    const cooldownInput = document.querySelector<HTMLInputElement>("#cooldown-filter");
+    if (cooldownInput) cooldownInput.value = cooldownDays !== null ? String(cooldownDays) : "";
 
     render();
   }
@@ -175,6 +192,7 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     nameQuery = "";
     menuQuery = "";
     visitedFilter = null;
+    cooldownDays = null;
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
     if (nameInput) nameInput.value = "";
@@ -182,6 +200,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     if (menuInput) menuInput.value = "";
     const visitedSelect = document.querySelector<HTMLSelectElement>("#visited-filter");
     if (visitedSelect) visitedSelect.value = "all";
+    const cooldownInput = document.querySelector<HTMLInputElement>("#cooldown-filter");
+    if (cooldownInput) cooldownInput.value = "";
 
     render();
   }
@@ -472,6 +492,15 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     visitedSelect.addEventListener("change", () => {
       const val = visitedSelect.value;
       visitedFilter = val === "all" ? null : val === "true";
+      applyFilter();
+    });
+  }
+
+  const cooldownInput = document.querySelector<HTMLInputElement>("#cooldown-filter");
+  if (cooldownInput) {
+    cooldownInput.addEventListener("input", () => {
+      const val = cooldownInput.value.trim();
+      cooldownDays = val === "" ? null : parseInt(val, 10) || null;
       applyFilter();
     });
   }
