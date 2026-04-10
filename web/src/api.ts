@@ -1,4 +1,4 @@
-import type { Restaurant, SavePayload } from "./types";
+import type { Restaurant, SavePayload, SearchState } from "./types";
 
 export type Fetcher = typeof fetch;
 
@@ -28,4 +28,21 @@ export async function saveBatch(
     const text = await response.text();
     throw new Error(text);
   }
+}
+
+export async function saveSearch(
+  state: SearchState,
+  fetcher: Fetcher = fetch,
+): Promise<SearchState> {
+  const response = await fetcher("/api/search", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(state),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text);
+  }
+  return response.json();
 }

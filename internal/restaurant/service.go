@@ -30,6 +30,13 @@ func (s *Service) SaveBatch(req SaveRequest) (*RestaurantData, error) {
 	return s.repo.SaveBatch(req)
 }
 
+func (s *Service) SaveSearch(search Search) (*RestaurantData, error) {
+	if err := search.Validate(); err != nil {
+		return nil, err
+	}
+	return s.repo.SaveSearch(search)
+}
+
 func (s *Service) Recommend() (*Restaurant, error) {
 	data, err := s.repo.FindAll()
 	if err != nil {

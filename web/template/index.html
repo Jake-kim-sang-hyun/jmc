@@ -16,6 +16,7 @@
             <input id="menu-filter" class="name-filter" type="text" placeholder="메뉴 이름으로 검색...">
         </div>
         <div id="tag-filters" class="tag-filters"></div>
+        <div id="saved-filters"></div>
         <table>
             <thead>
                 <tr>
@@ -90,6 +91,7 @@
                 {{end}}
             </tbody>
         </table>
+        <script type="application/json" id="initial-search">{{json .Search}}</script>
         <script src="/static/main.js"></script>
     </body>
 </html>

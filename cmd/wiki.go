@@ -61,6 +61,7 @@ func Wiki() {
 	mux.HandleFunc("PUT /api/restaurants/{name}", controller.HandleUpdate)
 	mux.HandleFunc("DELETE /api/restaurants/{name}", controller.HandleDelete)
 	mux.HandleFunc("POST /api/restaurants/save", controller.HandleSave)
+	mux.HandleFunc("PUT /api/search", controller.HandleSaveSearch)
 
 	http.ListenAndServe(addr, loggingMiddleware(mux))
 }

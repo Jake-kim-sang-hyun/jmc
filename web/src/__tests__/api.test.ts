@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { fetchRecommend, saveBatch, type Fetcher } from "../api";
-import type { Restaurant, SavePayload } from "../types";
+import { fetchRecommend, saveBatch, saveSearch, type Fetcher } from "../api";
+import type { Restaurant, SavePayload, SearchState } from "../types";
 
 function mockFetcher(response: Partial<Response>): Fetcher {
   return vi.fn().mockResolvedValue({
@@ -126,5 +126,49 @@ describe("fetchRecommend", () => {
     });
 
     await expect(fetchRecommend(fetcher)).rejects.toThrow("추천 실패");
+  });
+});
+
+describe("saveSearch", () => {
+  it("PUT /api/search로 올바른 페이로드를 전송한다", async () => {
+    const state: SearchState = {
+      filters: [
+        {
+          name: "테스트필터",
+          categories: ["한식"],
+          locations: ["강남"],
+          name_query: "맛집",
+          menu_query: "",
+        },
+      ],
+      selected: 0,
+    };
+
+    const fetcher = mockFetcher({
+      ok: true,
+      json: () => Promise.resolve(state),
+    });
+
+    const result = await saveSearch(state, fetcher);
+
+    expect(fetcher).toHaveBeenCalledWith("/api/search", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state),
+    });
+    expect(result).toEqual(state);
+  });
+
+  it("응답이 실패하면 에러를 던진다", async () => {
+    const fetcher = mockFetcher({
+      ok: false,
+      text: () => Promise.resolve("필터 name은 필수입니다"),
+    });
+
+    const state: SearchState = { filters: [], selected: null };
+
+    await expect(saveSearch(state, fetcher)).rejects.toThrow(
+      "필터 name은 필수입니다",
+    );
   });
 });

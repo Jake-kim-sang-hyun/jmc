@@ -11,6 +11,12 @@
             <button id="btn-add" type="button">추가</button>
             <button id="btn-save" type="button">저장</button>
         </div>
+        <div class="name-filter-row">
+            <input id="name-filter" class="name-filter" type="text" placeholder="이름으로 검색...">
+            <input id="menu-filter" class="name-filter" type="text" placeholder="메뉴 이름으로 검색...">
+        </div>
+        <div id="tag-filters" class="tag-filters"></div>
+        <div id="saved-filters"></div>
         <table>
             <thead>
                 <tr>
@@ -22,6 +28,7 @@
                     <th class="col-location">위치</th>
                     <th class="col-kakao">카카오 지도</th>
                     <th>소감</th>
+                    <th class="col-last-visited">마지막 방문</th>
                     <th class="col-delete">삭제</th>
                 </tr>
             </thead>
@@ -50,6 +57,7 @@
                     <td data-field="locations" class="tag-cell"><div class="tag-container">{{range .Locations}}<span class="tag" data-tag="{{.}}">{{.}} <button type="button" class="tag-remove" aria-label="태그 삭제">×</button></span>{{end}}<input type="text" class="tag-input" placeholder="위치 입력..." maxlength="50"></div></td>
                     <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
                     <td contenteditable="true" data-field="description">{{nl2br .Description}}</td>
+                    <td class="col-last-visited" data-field="last_visited_at"><input type="date" class="last-visited-input"{{if .LastVisitedAt}} value="{{.LastVisitedAt}}"{{end}}></td>
                     <td class="col-delete"><input type="checkbox" class="row-check"></td>
                 </tr>
                 {{range .Menus}}
@@ -76,12 +84,14 @@
                     <td></td>
                     <td></td>
                     <td contenteditable="true" data-field="menu-description">{{nl2br .Description}}</td>
+                    <td class="col-last-visited"></td>
                     <td class="col-delete"><input type="checkbox" class="menu-check"></td>
                 </tr>
                 {{end}}
                 {{end}}
             </tbody>
         </table>
+        <script type="application/json" id="initial-search">{{json .Search}}</script>
         <script src="/static/main.js"></script>
     </body>
 </html>

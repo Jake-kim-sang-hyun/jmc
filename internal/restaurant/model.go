@@ -1,6 +1,9 @@
 package restaurant
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Menu struct {
 	Name        string  `json:"name"`
@@ -83,13 +86,44 @@ type CLIConfig struct {
 type SearchFilter struct {
 	Name       string   `json:"name"`
 	Categories []string `json:"categories"`
-	SortBy     string   `json:"sort_by"`
-	Visited    *bool    `json:"visited"`
+	Locations  []string `json:"locations"`
+	NameQuery  string   `json:"name_query"`
+	MenuQuery  string   `json:"menu_query"`
+}
+
+func (f *SearchFilter) Validate() error {
+	if strings.TrimSpace(f.Name) == "" {
+		return fmt.Errorf("필터 name은 필수입니다")
+	}
+	if f.Categories == nil {
+		f.Categories = []string{}
+	}
+	if f.Locations == nil {
+		f.Locations = []string{}
+	}
+	return nil
 }
 
 type Search struct {
 	Filters  []SearchFilter `json:"filters"`
 	Selected *int           `json:"selected"`
+}
+
+func (s *Search) Validate() error {
+	seen := map[string]bool{}
+	for i := range s.Filters {
+		if err := s.Filters[i].Validate(); err != nil {
+			return fmt.Errorf("search.filters[%d]: %w", i, err)
+		}
+		if seen[s.Filters[i].Name] {
+			return fmt.Errorf("search.filters 이름 중복: %s", s.Filters[i].Name)
+		}
+		seen[s.Filters[i].Name] = true
+	}
+	if s.Selected != nil && (*s.Selected < 0 || *s.Selected >= len(s.Filters)) {
+		return fmt.Errorf("search.selected 인덱스 범위 밖: %d", *s.Selected)
+	}
+	return nil
 }
 
 type RestaurantData struct {

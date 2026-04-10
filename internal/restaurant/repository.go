@@ -94,6 +94,18 @@ func normalizeRestaurant(rest *Restaurant) {
 	}
 }
 
+func (r *Repository) SaveSearch(s Search) (*RestaurantData, error) {
+	data, err := r.FindAll()
+	if err != nil {
+		return nil, err
+	}
+	data.Search = s
+	if err := r.Save(data); err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 func (r *Repository) SaveBatch(req SaveRequest) (*RestaurantData, error) {
 	data, err := r.FindAll()
 	if err != nil {

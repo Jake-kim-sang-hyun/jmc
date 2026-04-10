@@ -20,6 +20,10 @@ func NewController(service *Service, wikiFiles embed.FS) *Controller {
 			escaped := template.HTMLEscapeString(s)
 			return template.HTML(strings.ReplaceAll(escaped, "\n", "<br>"))
 		},
+		"json": func(v any) template.JS {
+			b, _ := json.Marshal(v)
+			return template.JS(b)
+		},
 	}
 	tmpl, _ := template.New("index.html").Funcs(funcMap).ParseFS(wikiFiles, "wiki/index.html")
 	return &Controller{service: service, tmpl: tmpl}
@@ -123,6 +127,23 @@ func (c *Controller) HandleSave(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
+}
+
+func (c *Controller) HandleSaveSearch(w http.ResponseWriter, r *http.Request) {
+	var search Search
+	if err := json.NewDecoder(r.Body).Decode(&search); err != nil {
+		http.Error(w, "잘못된 요청입니다", http.StatusBadRequest)
+		return
+	}
+
+	data, err := c.service.SaveSearch(search)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data.Search)
 }
 
 func (c *Controller) StaticFiles(wikiFiles embed.FS) http.Handler {

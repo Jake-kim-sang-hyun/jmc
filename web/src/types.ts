@@ -23,3 +23,16 @@ export interface SavePayload {
   update: Restaurant[];
   delete: string[];
 }
+
+export interface SearchFilter {
+  name: string;
+  categories: string[];
+  locations: string[];
+  name_query: string;
+  menu_query: string;
+}
+
+export interface SearchState {
+  filters: SearchFilter[];
+  selected: number | null;
+}
