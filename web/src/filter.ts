@@ -5,6 +5,7 @@ type FilterField = "categories" | "locations";
 
 let nameQuery = "";
 let menuQuery = "";
+let visitedFilter: boolean | null = null; // null=전체, true=방문, false=미방문
 
 let savedFilters: SearchFilter[] = [];
 let selectedIndex: number | null = null;
@@ -85,6 +86,13 @@ function menuRowMatches(
   return name.includes(query);
 }
 
+function rowMatchesVisited(tr: HTMLTableRowElement, filter: boolean | null): boolean {
+  if (filter === null) return true;
+  const checkbox = tr.querySelector<HTMLInputElement>(".visited-check");
+  if (!checkbox) return true;
+  return checkbox.checked === filter;
+}
+
 function setRowGroupVisible(
   tr: HTMLTableRowElement,
   visible: boolean,
@@ -120,7 +128,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
         const baseVisible =
           rowMatchesName(tr, nameQuery) &&
           rowHasAnyTag(tr, "categories", selected.categories) &&
-          rowHasAnyTag(tr, "locations", selected.locations);
+          rowHasAnyTag(tr, "locations", selected.locations) &&
+          rowMatchesVisited(tr, visitedFilter);
 
         let visible = baseVisible;
         if (visible && menuQuery !== "") {
@@ -139,6 +148,7 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
       locations: Array.from(selected.locations),
       name_query: nameQuery,
       menu_query: menuQuery,
+      visited: visitedFilter,
     };
   }
 
@@ -147,11 +157,14 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     selected.locations = new Set(f.locations);
     nameQuery = f.name_query;
     menuQuery = f.menu_query;
+    visitedFilter = f.visited;
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
     if (nameInput) nameInput.value = f.name_query;
     const menuInput = document.querySelector<HTMLInputElement>("#menu-filter");
     if (menuInput) menuInput.value = f.menu_query;
+    const visitedSelect = document.querySelector<HTMLSelectElement>("#visited-filter");
+    if (visitedSelect) visitedSelect.value = visitedFilter === null ? "all" : visitedFilter ? "true" : "false";
 
     render();
   }
@@ -161,11 +174,14 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     selected.locations.clear();
     nameQuery = "";
     menuQuery = "";
+    visitedFilter = null;
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
     if (nameInput) nameInput.value = "";
     const menuInput = document.querySelector<HTMLInputElement>("#menu-filter");
     if (menuInput) menuInput.value = "";
+    const visitedSelect = document.querySelector<HTMLSelectElement>("#visited-filter");
+    if (visitedSelect) visitedSelect.value = "all";
 
     render();
   }
@@ -447,6 +463,15 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
   if (menuInput) {
     menuInput.addEventListener("input", () => {
       menuQuery = menuInput.value.trim().toLowerCase();
+      applyFilter();
+    });
+  }
+
+  const visitedSelect = document.querySelector<HTMLSelectElement>("#visited-filter");
+  if (visitedSelect) {
+    visitedSelect.addEventListener("change", () => {
+      const val = visitedSelect.value;
+      visitedFilter = val === "all" ? null : val === "true";
       applyFilter();
     });
   }

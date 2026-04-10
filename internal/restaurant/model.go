@@ -89,6 +89,7 @@ type SearchFilter struct {
 	Locations  []string `json:"locations"`
 	NameQuery  string   `json:"name_query"`
 	MenuQuery  string   `json:"menu_query"`
+	Visited    *bool    `json:"visited"`
 }
 
 func (f *SearchFilter) Validate() error {

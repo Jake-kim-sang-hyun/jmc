@@ -114,6 +114,20 @@ td:focus-within {
     border-color: #4a90d9;
 }
 
+.visited-filter {
+    padding: 6px 10px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 13px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.visited-filter:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
 .tag-filters {
     margin-bottom: 12px;
     display: flex;

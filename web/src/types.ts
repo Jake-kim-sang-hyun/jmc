@@ -30,6 +30,7 @@ export interface SearchFilter {
   locations: string[];
   name_query: string;
   menu_query: string;
+  visited: boolean | null;
 }
 
 export interface SearchState {
