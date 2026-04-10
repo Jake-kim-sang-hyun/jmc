@@ -64,7 +64,7 @@ export function createMenuRow(): HTMLTableRowElement {
     <td></td>
     <td></td>
     <td contenteditable="true" data-field="menu-description"></td>
-    <td class="col-last-visited"></td>
+    <td class="col-last-visited" data-field="menu-last-visited-at"><input type="date" class="last-visited-input"></td>
     <td class="col-delete"><input type="checkbox" class="menu-check"></td>
   `;
   attachMenuRowEvents(tr);
@@ -349,8 +349,13 @@ export function readMenuRow(tr: HTMLTableRowElement): Menu | null {
   );
   const visited =
     tr.querySelector<HTMLInputElement>(".menu-visited-check")?.checked ?? false;
+  const menuLastVisitedInput = tr.querySelector<HTMLInputElement>(
+    "[data-field='menu-last-visited-at'] .last-visited-input",
+  );
+  const menuLastVisitedRaw = menuLastVisitedInput?.value.trim() ?? "";
+  const last_visited_at = menuLastVisitedRaw === "" ? null : menuLastVisitedRaw;
 
-  return { name, rating, price, description, visited };
+  return { name, rating, price, description, visited, last_visited_at };
 }
 
 export function readRow(tr: HTMLTableRowElement): Restaurant {

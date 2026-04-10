@@ -6,11 +6,12 @@ import (
 )
 
 type Menu struct {
-	Name        string  `json:"name"`
-	Rating      float64 `json:"rating"`
-	Price       int     `json:"price"`
-	Description string  `json:"description"`
-	Visited     bool    `json:"visited"`
+	Name          string  `json:"name"`
+	Rating        float64 `json:"rating"`
+	Price         int     `json:"price"`
+	Description   string  `json:"description"`
+	Visited       bool    `json:"visited"`
+	LastVisitedAt *string `json:"last_visited_at,omitempty"`
 }
 
 func (m *Menu) Validate() error {

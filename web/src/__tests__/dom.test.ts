@@ -253,6 +253,7 @@ describe("readRow", () => {
       price: 9000,
       description: "진한 국물",
       visited: false,
+      last_visited_at: null,
     });
     expect(result.menus[1]).toEqual({
       name: "차슈덮밥",
@@ -260,6 +261,7 @@ describe("readRow", () => {
       price: 11000,
       description: "",
       visited: false,
+      last_visited_at: null,
     });
   });
 
@@ -354,6 +356,7 @@ describe("readMenuRow", () => {
       price: 8000,
       description: "맛있다",
       visited: true,
+      last_visited_at: null,
     });
   });
 

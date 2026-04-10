@@ -4,6 +4,7 @@ export interface Menu {
   price: number;
   description: string;
   visited: boolean;
+  last_visited_at: string | null;
 }
 
 export interface Restaurant {

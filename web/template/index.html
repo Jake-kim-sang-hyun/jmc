@@ -89,7 +89,7 @@
                     <td></td>
                     <td></td>
                     <td contenteditable="true" data-field="menu-description">{{nl2br .Description}}</td>
-                    <td class="col-last-visited"></td>
+                    <td class="col-last-visited" data-field="menu-last-visited-at"><input type="date" class="last-visited-input"{{if .LastVisitedAt}} value="{{.LastVisitedAt}}"{{end}}></td>
                     <td class="col-delete"><input type="checkbox" class="menu-check"></td>
                 </tr>
                 {{end}}
