@@ -31,6 +31,17 @@ function escapeTagText(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+const DAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
+
+function buildOpenDaysCell(days: boolean[]): string {
+  const arr = days.length === 7 ? days : [true, true, true, true, true, true, true];
+  const inputs = DAY_LABELS.map(
+    (label, i) =>
+      `<label><input type="checkbox" class="open-day-check" data-day="${i}"${arr[i] ? " checked" : ""}>${label}</label>`,
+  ).join("");
+  return `<td class="col-open-days" data-field="open_days"><div class="open-days">${inputs}</div></td>`;
+}
+
 export function createEmptyRow(): HTMLTableRowElement {
   const tr = document.createElement("tr");
   tr.classList.add("restaurant-row");
@@ -42,6 +53,7 @@ export function createEmptyRow(): HTMLTableRowElement {
     <td data-field="rating">${buildRatingSelect(0)}</td>
     ${buildTagCell("categories", [], "태그 입력...")}
     ${buildTagCell("locations", [], "위치 입력...")}
+    ${buildOpenDaysCell([true, true, true, true, true, true, true])}
     <td contenteditable="true" data-field="kakao_url"></td>
     <td contenteditable="true" data-field="description"></td>
     <td class="col-last-visited" data-field="last_visited_at"><input type="date" class="last-visited-input"></td>
@@ -60,6 +72,7 @@ export function createMenuRow(): HTMLTableRowElement {
     <td contenteditable="true" data-field="menu-name"></td>
     <td contenteditable="true" data-field="menu-price"></td>
     <td data-field="menu-rating">${buildRatingSelect(0)}</td>
+    <td></td>
     <td></td>
     <td></td>
     <td></td>
@@ -220,6 +233,13 @@ export function attachRowEvents(tr: HTMLTableRowElement): void {
     visitedCheck.addEventListener("change", () => markRowUpdated(tr));
   }
 
+  tr.querySelectorAll<HTMLInputElement>(".open-day-check").forEach((input) => {
+    input.addEventListener("change", () => {
+      markRowUpdated(tr);
+      document.dispatchEvent(new CustomEvent("jmc:open-days-changed"));
+    });
+  });
+
   const lastVisitedInput = tr.querySelector<HTMLInputElement>(
     ".last-visited-input",
   );
@@ -379,6 +399,12 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
   const lastVisitedRaw = lastVisitedInput?.value.trim() ?? "";
   const lastVisitedAt = lastVisitedRaw === "" ? null : lastVisitedRaw;
 
+  const openDays: boolean[] = [true, true, true, true, true, true, true];
+  tr.querySelectorAll<HTMLInputElement>(".open-day-check").forEach((input) => {
+    const day = parseInt(input.dataset.day ?? "-1", 10);
+    if (day >= 0 && day < 7) openDays[day] = input.checked;
+  });
+
   const menuRows = getMenuRows(tr);
   const menus: Menu[] = [];
   for (const menuTr of menuRows) {
@@ -396,6 +422,7 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
     description,
     menus,
     last_visited_at: lastVisitedAt,
+    open_days: openDays,
   };
 }
 

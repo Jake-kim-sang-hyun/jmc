@@ -9,6 +9,24 @@ let visitedFilter: boolean | null = null; // null=전체, true=방문, false=미
 let cooldownDays: number | null = null; // null=미적용, N=N일 이상 지난 식당만
 let minPrice: number | null = null; // null=하한 없음(0 이상)
 let maxPrice: number | null = null; // null=상한 없음(무한대)
+const openDaysSelected: Set<number> = new Set(); // 비어있으면 미적용. 교집합 조건.
+
+const DAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
+
+function rowMatchesOpenDays(tr: HTMLTableRowElement, selected: Set<number>): boolean {
+  if (selected.size === 0) return true;
+  const checks = tr.querySelectorAll<HTMLInputElement>(".open-day-check");
+  if (checks.length !== 7) return true; // 데이터 없으면 매일 영업으로 간주
+  const open: boolean[] = [true, true, true, true, true, true, true];
+  checks.forEach((input) => {
+    const day = parseInt(input.dataset.day ?? "-1", 10);
+    if (day >= 0 && day < 7) open[day] = input.checked;
+  });
+  for (const d of selected) {
+    if (!open[d]) return false;
+  }
+  return true;
+}
 
 let savedFilters: SearchFilter[] = [];
 let selectedIndex: number | null = null;
@@ -168,7 +186,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
           rowHasAnyTag(tr, "categories", selected.categories) &&
           rowHasAnyTag(tr, "locations", selected.locations) &&
           rowMatchesVisited(tr, visitedFilter) &&
-          rowMatchesCooldown(tr, cooldownDays);
+          rowMatchesCooldown(tr, cooldownDays) &&
+          rowMatchesOpenDays(tr, openDaysSelected);
 
         let visible = baseVisible;
         const menuFilterActive =
@@ -193,6 +212,7 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
       cooldown_days: cooldownDays,
       min_price: minPrice,
       max_price: maxPrice,
+      open_days: Array.from(openDaysSelected).sort((a, b) => a - b),
     };
   }
 
@@ -205,6 +225,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     cooldownDays = f.cooldown_days;
     minPrice = f.min_price ?? null;
     maxPrice = f.max_price ?? null;
+    openDaysSelected.clear();
+    (f.open_days ?? []).forEach((d) => openDaysSelected.add(d));
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
     if (nameInput) nameInput.value = f.name_query;
@@ -231,6 +253,7 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     cooldownDays = null;
     minPrice = null;
     maxPrice = null;
+    openDaysSelected.clear();
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
     if (nameInput) nameInput.value = "";
@@ -489,7 +512,39 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     });
   }
 
+  function renderOpenDaysFilter(): void {
+    const wrapper = document.querySelector<HTMLElement>("#open-days-filter");
+    if (!wrapper) return;
+    wrapper.innerHTML = "";
+
+    const label = document.createElement("span");
+    label.className = "filter-label";
+    label.textContent = "영업일";
+    wrapper.appendChild(label);
+
+    DAY_LABELS.forEach((name, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "filter-tag open-day-filter-btn";
+      btn.textContent = name;
+      btn.dataset.day = String(i);
+      if (openDaysSelected.has(i)) btn.classList.add("active");
+      btn.addEventListener("click", () => {
+        if (openDaysSelected.has(i)) {
+          openDaysSelected.delete(i);
+          btn.classList.remove("active");
+        } else {
+          openDaysSelected.add(i);
+          btn.classList.add("active");
+        }
+        applyFilter();
+      });
+      wrapper.appendChild(btn);
+    });
+  }
+
   function render(): void {
+    renderOpenDaysFilter();
     // Drop selected tags that no longer exist
     (["categories", "locations"] as FilterField[]).forEach((field) => {
       const existing = new Set(collectUniqueTags(tbody, field));
@@ -574,5 +629,10 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
   // Rebuild when tag set changes (add/remove tag, new/deleted row)
   document.addEventListener("jmc:tags-changed", () => {
     render();
+  });
+
+  // Reapply when a restaurant's own open-day checkboxes change
+  document.addEventListener("jmc:open-days-changed", () => {
+    applyFilter();
   });
 }

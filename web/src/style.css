@@ -421,3 +421,61 @@ td[data-field="menu-description"] {
 .saved-filter-btn-delete:hover {
     background: #fff0f0;
 }
+
+.col-open-days {
+    width: 120px;
+}
+
+.open-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 6px;
+    font-size: 12px;
+}
+
+.open-days label {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+}
+
+.open-days input[type="checkbox"] {
+    margin: 0;
+}
+
+.open-days-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.open-days-filter .filter-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+    margin-right: 4px;
+    min-width: 60px;
+}
+
+.open-day-filter-btn {
+    padding: 3px 10px;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #333;
+}
+
+.open-day-filter-btn:hover {
+    background: #f0f0f0;
+}
+
+.open-day-filter-btn.active {
+    background: #4a90d9;
+    border-color: #4a90d9;
+    color: #fff;
+}

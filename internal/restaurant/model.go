@@ -40,6 +40,8 @@ type Restaurant struct {
 	Description   string   `json:"description"`
 	Menus         []Menu   `json:"menus"`
 	LastVisitedAt *string  `json:"last_visited_at,omitempty"`
+	// OpenDays: 월화수목금토일 순서의 7개 bool. nil이면 매일 영업으로 간주.
+	OpenDays []bool `json:"open_days,omitempty"`
 }
 
 func (r *Restaurant) Validate() error {
@@ -58,6 +60,9 @@ func (r *Restaurant) Validate() error {
 	}
 	if r.Locations == nil {
 		return fmt.Errorf("locations 필드는 필수입니다: %s", r.Name)
+	}
+	if r.OpenDays != nil && len(r.OpenDays) != 7 {
+		return fmt.Errorf("open_days는 7개여야 합니다: %s", r.Name)
 	}
 	// 카카오톡 맵 url은 없어도 됨(빈문자열로 저장)
 	for i, m := range r.Menus {
@@ -94,6 +99,8 @@ type SearchFilter struct {
 	CooldownDays *int     `json:"cooldown_days"`
 	MinPrice     *int     `json:"min_price"`
 	MaxPrice     *int     `json:"max_price"`
+	// OpenDays: 선택된 요일 인덱스(0=월..6=일). 교집합 조건. 비어있으면 미적용.
+	OpenDays []int `json:"open_days"`
 }
 
 func (f *SearchFilter) Validate() error {
@@ -105,6 +112,14 @@ func (f *SearchFilter) Validate() error {
 	}
 	if f.Locations == nil {
 		f.Locations = []string{}
+	}
+	if f.OpenDays == nil {
+		f.OpenDays = []int{}
+	}
+	for _, d := range f.OpenDays {
+		if d < 0 || d > 6 {
+			return fmt.Errorf("필터 open_days 인덱스는 0~6 사이여야 합니다: %d", d)
+		}
 	}
 	return nil
 }

@@ -24,6 +24,12 @@ func NewController(service *Service, wikiFiles embed.FS) *Controller {
 			b, _ := json.Marshal(v)
 			return template.JS(b)
 		},
+		"openDay": func(days []bool, i int) bool {
+			if len(days) != 7 {
+				return true
+			}
+			return days[i]
+		},
 	}
 	tmpl, _ := template.New("index.html").Funcs(funcMap).ParseFS(wikiFiles, "wiki/index.html")
 	return &Controller{service: service, tmpl: tmpl}

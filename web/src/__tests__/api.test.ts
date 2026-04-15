@@ -26,6 +26,8 @@ describe("saveBatch", () => {
           visited: false,
           description: "",
           menus: [],
+          last_visited_at: null,
+          open_days: [],
         },
       ],
       update: [],
@@ -94,8 +96,11 @@ describe("fetchRecommend", () => {
           price: 9000,
           description: "",
           visited: false,
+          last_visited_at: null,
         },
       ],
+      last_visited_at: null,
+      open_days: [],
     };
 
     const fetcher = mockFetcher({
@@ -143,6 +148,7 @@ describe("saveSearch", () => {
           cooldown_days: null,
           min_price: null,
           max_price: null,
+          open_days: [],
         },
       ],
       selected: 0,

@@ -24,6 +24,7 @@
                 <input id="min-price-filter" class="price-filter" type="number" min="0" placeholder="최소 가격...">
                 <input id="max-price-filter" class="price-filter" type="number" min="0" placeholder="최대 가격...">
             </div>
+            <div id="open-days-filter" class="open-days-filter"></div>
             <div id="tag-filters" class="tag-filters"></div>
             <div id="saved-filters"></div>
         </div>
@@ -36,6 +37,7 @@
                     <th class="col-rating">평점</th>
                     <th class="col-category">카테고리</th>
                     <th class="col-location">위치</th>
+                    <th class="col-open-days">영업일</th>
                     <th class="col-kakao">카카오 지도</th>
                     <th>소감</th>
                     <th class="col-last-visited">마지막 방문</th>
@@ -65,6 +67,7 @@
                     </td>
                     <td data-field="categories" class="tag-cell"><div class="tag-container">{{range .Categories}}<span class="tag" data-tag="{{.}}">{{.}} <button type="button" class="tag-remove" aria-label="태그 삭제">×</button></span>{{end}}<input type="text" class="tag-input" placeholder="태그 입력..." maxlength="50"></div></td>
                     <td data-field="locations" class="tag-cell"><div class="tag-container">{{range .Locations}}<span class="tag" data-tag="{{.}}">{{.}} <button type="button" class="tag-remove" aria-label="태그 삭제">×</button></span>{{end}}<input type="text" class="tag-input" placeholder="위치 입력..." maxlength="50"></div></td>
+                    {{$od := .OpenDays}}<td class="col-open-days" data-field="open_days"><div class="open-days"><label><input type="checkbox" class="open-day-check" data-day="0"{{if openDay $od 0}} checked{{end}}>월</label><label><input type="checkbox" class="open-day-check" data-day="1"{{if openDay $od 1}} checked{{end}}>화</label><label><input type="checkbox" class="open-day-check" data-day="2"{{if openDay $od 2}} checked{{end}}>수</label><label><input type="checkbox" class="open-day-check" data-day="3"{{if openDay $od 3}} checked{{end}}>목</label><label><input type="checkbox" class="open-day-check" data-day="4"{{if openDay $od 4}} checked{{end}}>금</label><label><input type="checkbox" class="open-day-check" data-day="5"{{if openDay $od 5}} checked{{end}}>토</label><label><input type="checkbox" class="open-day-check" data-day="6"{{if openDay $od 6}} checked{{end}}>일</label></div></td>
                     <td contenteditable="true" data-field="kakao_url">{{.KakaoURL}}</td>
                     <td contenteditable="true" data-field="description">{{nl2br .Description}}</td>
                     <td class="col-last-visited" data-field="last_visited_at"><input type="date" class="last-visited-input"{{if .LastVisitedAt}} value="{{.LastVisitedAt}}"{{end}}></td>
@@ -90,6 +93,7 @@
                             <option value="5">🌟🌟🌟🌟🌟</option>
                         </select>
                     </td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>

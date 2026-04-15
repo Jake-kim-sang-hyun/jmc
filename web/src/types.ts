@@ -17,6 +17,7 @@ export interface Restaurant {
   description: string;
   menus: Menu[];
   last_visited_at: string | null;
+  open_days: boolean[];
 }
 
 export interface UpdateEntry {
@@ -40,6 +41,7 @@ export interface SearchFilter {
   cooldown_days: number | null;
   min_price: number | null;
   max_price: number | null;
+  open_days: number[];
 }
 
 export interface SearchState {
