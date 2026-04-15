@@ -138,7 +138,8 @@ td:focus-within {
     border-color: #4a90d9;
 }
 
-.cooldown-filter {
+.cooldown-filter,
+.price-filter {
     width: 120px;
     padding: 6px 10px;
     border: 1px solid #bbb;
@@ -146,7 +147,8 @@ td:focus-within {
     font-size: 13px;
 }
 
-.cooldown-filter:focus {
+.cooldown-filter:focus,
+.price-filter:focus {
     outline: none;
     border-color: #4a90d9;
 }

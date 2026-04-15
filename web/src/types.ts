@@ -38,6 +38,8 @@ export interface SearchFilter {
   menu_query: string;
   visited: boolean | null;
   cooldown_days: number | null;
+  min_price: number | null;
+  max_price: number | null;
 }
 
 export interface SearchState {

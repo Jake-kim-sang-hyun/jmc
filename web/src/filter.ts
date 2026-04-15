@@ -7,6 +7,8 @@ let nameQuery = "";
 let menuQuery = "";
 let visitedFilter: boolean | null = null; // null=전체, true=방문, false=미방문
 let cooldownDays: number | null = null; // null=미적용, N=N일 이상 지난 식당만
+let minPrice: number | null = null; // null=하한 없음(0 이상)
+let maxPrice: number | null = null; // null=상한 없음(무한대)
 
 let savedFilters: SearchFilter[] = [];
 let selectedIndex: number | null = null;
@@ -87,6 +89,29 @@ function menuRowMatches(
   return name.includes(query);
 }
 
+function menuRowMatchesPrice(
+  menuTr: HTMLTableRowElement,
+  min: number | null,
+  max: number | null,
+): boolean {
+  if (min === null && max === null) return true;
+  const cell = menuTr.querySelector<HTMLElement>("[data-field='menu-price']");
+  const raw = cell?.textContent?.replace(/[^\d]/g, "") ?? "";
+  if (raw === "") return false;
+  const price = parseInt(raw, 10);
+  if (Number.isNaN(price)) return false;
+  if (min !== null && price < min) return false;
+  if (max !== null && price > max) return false;
+  return true;
+}
+
+function menuRowVisible(menuTr: HTMLTableRowElement): boolean {
+  return (
+    menuRowMatches(menuTr, menuQuery) &&
+    menuRowMatchesPrice(menuTr, minPrice, maxPrice)
+  );
+}
+
 function rowMatchesCooldown(tr: HTMLTableRowElement, days: number | null): boolean {
   if (days === null) return true;
   const input = tr.querySelector<HTMLInputElement>(".last-visited-input");
@@ -108,16 +133,17 @@ function rowMatchesVisited(tr: HTMLTableRowElement, filter: boolean | null): boo
 function setRowGroupVisible(
   tr: HTMLTableRowElement,
   visible: boolean,
-  menuFilterQuery: string,
 ): void {
   tr.style.display = visible ? "" : "none";
   const menuRows = getMenuRowsFor(tr);
+  const menuFilterActive =
+    menuQuery !== "" || minPrice !== null || maxPrice !== null;
   menuRows.forEach((menuTr) => {
     if (!visible) {
       menuTr.style.display = "none";
       return;
     }
-    const show = menuFilterQuery === "" || menuRowMatches(menuTr, menuFilterQuery);
+    const show = !menuFilterActive || menuRowVisible(menuTr);
     menuTr.style.display = show ? "" : "none";
   });
 }
@@ -145,12 +171,14 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
           rowMatchesCooldown(tr, cooldownDays);
 
         let visible = baseVisible;
-        if (visible && menuQuery !== "") {
+        const menuFilterActive =
+          menuQuery !== "" || minPrice !== null || maxPrice !== null;
+        if (visible && menuFilterActive) {
           const menus = getMenuRowsFor(tr);
-          visible = menus.some((m) => menuRowMatches(m, menuQuery));
+          visible = menus.some((m) => menuRowVisible(m));
         }
 
-        setRowGroupVisible(tr, visible, menuQuery);
+        setRowGroupVisible(tr, visible);
       });
   }
 
@@ -163,6 +191,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
       menu_query: menuQuery,
       visited: visitedFilter,
       cooldown_days: cooldownDays,
+      min_price: minPrice,
+      max_price: maxPrice,
     };
   }
 
@@ -173,6 +203,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     menuQuery = f.menu_query;
     visitedFilter = f.visited;
     cooldownDays = f.cooldown_days;
+    minPrice = f.min_price ?? null;
+    maxPrice = f.max_price ?? null;
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
     if (nameInput) nameInput.value = f.name_query;
@@ -182,6 +214,10 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     if (visitedSelect) visitedSelect.value = visitedFilter === null ? "all" : visitedFilter ? "true" : "false";
     const cooldownInput = document.querySelector<HTMLInputElement>("#cooldown-filter");
     if (cooldownInput) cooldownInput.value = cooldownDays !== null ? String(cooldownDays) : "";
+    const minPriceInput = document.querySelector<HTMLInputElement>("#min-price-filter");
+    if (minPriceInput) minPriceInput.value = minPrice !== null ? String(minPrice) : "";
+    const maxPriceInput = document.querySelector<HTMLInputElement>("#max-price-filter");
+    if (maxPriceInput) maxPriceInput.value = maxPrice !== null ? String(maxPrice) : "";
 
     render();
   }
@@ -193,6 +229,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     menuQuery = "";
     visitedFilter = null;
     cooldownDays = null;
+    minPrice = null;
+    maxPrice = null;
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
     if (nameInput) nameInput.value = "";
@@ -202,6 +240,10 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     if (visitedSelect) visitedSelect.value = "all";
     const cooldownInput = document.querySelector<HTMLInputElement>("#cooldown-filter");
     if (cooldownInput) cooldownInput.value = "";
+    const minPriceInput = document.querySelector<HTMLInputElement>("#min-price-filter");
+    if (minPriceInput) minPriceInput.value = "";
+    const maxPriceInput = document.querySelector<HTMLInputElement>("#max-price-filter");
+    if (maxPriceInput) maxPriceInput.value = "";
 
     render();
   }
@@ -501,6 +543,30 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     cooldownInput.addEventListener("input", () => {
       const val = cooldownInput.value.trim();
       cooldownDays = val === "" ? null : parseInt(val, 10) || null;
+      applyFilter();
+    });
+  }
+
+  function parsePriceInput(val: string): number | null {
+    const trimmed = val.trim();
+    if (trimmed === "") return null;
+    const n = parseInt(trimmed, 10);
+    if (Number.isNaN(n) || n < 0) return null;
+    return n;
+  }
+
+  const minPriceInput = document.querySelector<HTMLInputElement>("#min-price-filter");
+  if (minPriceInput) {
+    minPriceInput.addEventListener("input", () => {
+      minPrice = parsePriceInput(minPriceInput.value);
+      applyFilter();
+    });
+  }
+
+  const maxPriceInput = document.querySelector<HTMLInputElement>("#max-price-filter");
+  if (maxPriceInput) {
+    maxPriceInput.addEventListener("input", () => {
+      maxPrice = parsePriceInput(maxPriceInput.value);
       applyFilter();
     });
   }

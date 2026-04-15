@@ -92,6 +92,8 @@ type SearchFilter struct {
 	MenuQuery    string   `json:"menu_query"`
 	Visited      *bool    `json:"visited"`
 	CooldownDays *int     `json:"cooldown_days"`
+	MinPrice     *int     `json:"min_price"`
+	MaxPrice     *int     `json:"max_price"`
 }
 
 func (f *SearchFilter) Validate() error {
