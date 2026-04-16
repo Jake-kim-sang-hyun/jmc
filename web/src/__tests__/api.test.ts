@@ -148,6 +148,8 @@ describe("saveSearch", () => {
           cooldown_days: null,
           min_price: null,
           max_price: null,
+          min_rating: null,
+          max_rating: null,
           open_days: [],
         },
       ],

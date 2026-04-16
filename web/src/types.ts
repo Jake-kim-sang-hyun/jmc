@@ -41,6 +41,8 @@ export interface SearchFilter {
   cooldown_days: number | null;
   min_price: number | null;
   max_price: number | null;
+  min_rating: number | null;
+  max_rating: number | null;
   open_days: number[];
 }
 

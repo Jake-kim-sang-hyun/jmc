@@ -9,6 +9,8 @@ let visitedFilter: boolean | null = null; // null=전체, true=방문, false=미
 let cooldownDays: number | null = null; // null=미적용, N=N일 이상 지난 식당만
 let minPrice: number | null = null; // null=하한 없음(0 이상)
 let maxPrice: number | null = null; // null=상한 없음(무한대)
+let minRating: number | null = null; // null=하한 없음
+let maxRating: number | null = null; // null=상한 없음
 const openDaysSelected: Set<number> = new Set(); // 비어있으면 미적용. 교집합 조건.
 
 const DAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
@@ -130,6 +132,21 @@ function menuRowVisible(menuTr: HTMLTableRowElement): boolean {
   );
 }
 
+function rowMatchesRating(
+  tr: HTMLTableRowElement,
+  min: number | null,
+  max: number | null,
+): boolean {
+  if (min === null && max === null) return true;
+  const select = tr.querySelector<HTMLSelectElement>("[data-field='rating'] .rating-select");
+  if (!select) return true;
+  const rating = parseFloat(select.value);
+  if (Number.isNaN(rating)) return true;
+  if (min !== null && rating < min) return false;
+  if (max !== null && rating > max) return false;
+  return true;
+}
+
 function rowMatchesCooldown(tr: HTMLTableRowElement, days: number | null): boolean {
   if (days === null) return true;
   const input = tr.querySelector<HTMLInputElement>(".last-visited-input");
@@ -187,6 +204,7 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
           rowHasAnyTag(tr, "locations", selected.locations) &&
           rowMatchesVisited(tr, visitedFilter) &&
           rowMatchesCooldown(tr, cooldownDays) &&
+          rowMatchesRating(tr, minRating, maxRating) &&
           rowMatchesOpenDays(tr, openDaysSelected);
 
         let visible = baseVisible;
@@ -212,6 +230,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
       cooldown_days: cooldownDays,
       min_price: minPrice,
       max_price: maxPrice,
+      min_rating: minRating,
+      max_rating: maxRating,
       open_days: Array.from(openDaysSelected).sort((a, b) => a - b),
     };
   }
@@ -225,6 +245,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     cooldownDays = f.cooldown_days;
     minPrice = f.min_price ?? null;
     maxPrice = f.max_price ?? null;
+    minRating = f.min_rating ?? null;
+    maxRating = f.max_rating ?? null;
     openDaysSelected.clear();
     (f.open_days ?? []).forEach((d) => openDaysSelected.add(d));
 
@@ -240,6 +262,10 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     if (minPriceInput) minPriceInput.value = minPrice !== null ? String(minPrice) : "";
     const maxPriceInput = document.querySelector<HTMLInputElement>("#max-price-filter");
     if (maxPriceInput) maxPriceInput.value = maxPrice !== null ? String(maxPrice) : "";
+    const minRatingInput = document.querySelector<HTMLInputElement>("#min-rating-filter");
+    if (minRatingInput) minRatingInput.value = minRating !== null ? String(minRating) : "";
+    const maxRatingInput = document.querySelector<HTMLInputElement>("#max-rating-filter");
+    if (maxRatingInput) maxRatingInput.value = maxRating !== null ? String(maxRating) : "";
 
     render();
   }
@@ -253,6 +279,8 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     cooldownDays = null;
     minPrice = null;
     maxPrice = null;
+    minRating = null;
+    maxRating = null;
     openDaysSelected.clear();
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
@@ -267,6 +295,10 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     if (minPriceInput) minPriceInput.value = "";
     const maxPriceInput = document.querySelector<HTMLInputElement>("#max-price-filter");
     if (maxPriceInput) maxPriceInput.value = "";
+    const minRatingInput = document.querySelector<HTMLInputElement>("#min-rating-filter");
+    if (minRatingInput) minRatingInput.value = "";
+    const maxRatingInput = document.querySelector<HTMLInputElement>("#max-rating-filter");
+    if (maxRatingInput) maxRatingInput.value = "";
 
     render();
   }
@@ -622,6 +654,30 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
   if (maxPriceInput) {
     maxPriceInput.addEventListener("input", () => {
       maxPrice = parsePriceInput(maxPriceInput.value);
+      applyFilter();
+    });
+  }
+
+  function parseRatingInput(val: string): number | null {
+    const trimmed = val.trim();
+    if (trimmed === "") return null;
+    const n = parseFloat(trimmed);
+    if (Number.isNaN(n) || n < 0 || n > 5) return null;
+    return n;
+  }
+
+  const minRatingInput = document.querySelector<HTMLInputElement>("#min-rating-filter");
+  if (minRatingInput) {
+    minRatingInput.addEventListener("input", () => {
+      minRating = parseRatingInput(minRatingInput.value);
+      applyFilter();
+    });
+  }
+
+  const maxRatingInput = document.querySelector<HTMLInputElement>("#max-rating-filter");
+  if (maxRatingInput) {
+    maxRatingInput.addEventListener("input", () => {
+      maxRating = parseRatingInput(maxRatingInput.value);
       applyFilter();
     });
   }

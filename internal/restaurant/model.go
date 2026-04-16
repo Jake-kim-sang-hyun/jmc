@@ -97,8 +97,10 @@ type SearchFilter struct {
 	MenuQuery    string   `json:"menu_query"`
 	Visited      *bool    `json:"visited"`
 	CooldownDays *int     `json:"cooldown_days"`
-	MinPrice     *int     `json:"min_price"`
-	MaxPrice     *int     `json:"max_price"`
+	MinPrice     *int      `json:"min_price"`
+	MaxPrice     *int      `json:"max_price"`
+	MinRating    *float64  `json:"min_rating"`
+	MaxRating    *float64  `json:"max_rating"`
 	// OpenDays: 선택된 요일 인덱스(0=월..6=일). 교집합 조건. 비어있으면 미적용.
 	OpenDays []int `json:"open_days"`
 }
