@@ -11,6 +11,9 @@ let minPrice: number | null = null; // null=하한 없음(0 이상)
 let maxPrice: number | null = null; // null=상한 없음(무한대)
 let minRating: number | null = null; // null=하한 없음
 let maxRating: number | null = null; // null=상한 없음
+let reservableFilter: boolean | null = null;
+let walkinFilter: boolean | null = null;
+let waitingFilter: boolean | null = null;
 const openDaysSelected: Set<number> = new Set(); // 비어있으면 미적용. 교집합 조건.
 
 const DAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
@@ -165,6 +168,13 @@ function rowMatchesVisited(tr: HTMLTableRowElement, filter: boolean | null): boo
   return checkbox.checked === filter;
 }
 
+function rowMatchesCheckbox(tr: HTMLTableRowElement, selector: string, filter: boolean | null): boolean {
+  if (filter === null) return true;
+  const checkbox = tr.querySelector<HTMLInputElement>(selector);
+  if (!checkbox) return true;
+  return checkbox.checked === filter;
+}
+
 function setRowGroupVisible(
   tr: HTMLTableRowElement,
   visible: boolean,
@@ -205,6 +215,9 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
           rowMatchesVisited(tr, visitedFilter) &&
           rowMatchesCooldown(tr, cooldownDays) &&
           rowMatchesRating(tr, minRating, maxRating) &&
+          rowMatchesCheckbox(tr, ".reservable-check", reservableFilter) &&
+          rowMatchesCheckbox(tr, ".walkin-check", walkinFilter) &&
+          rowMatchesCheckbox(tr, ".waiting-check", waitingFilter) &&
           rowMatchesOpenDays(tr, openDaysSelected);
 
         let visible = baseVisible;
@@ -232,6 +245,9 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
       max_price: maxPrice,
       min_rating: minRating,
       max_rating: maxRating,
+      reservable: reservableFilter,
+      walkin: walkinFilter,
+      waiting: waitingFilter,
       open_days: Array.from(openDaysSelected).sort((a, b) => a - b),
     };
   }
@@ -247,6 +263,9 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     maxPrice = f.max_price ?? null;
     minRating = f.min_rating ?? null;
     maxRating = f.max_rating ?? null;
+    reservableFilter = f.reservable ?? null;
+    walkinFilter = f.walkin ?? null;
+    waitingFilter = f.waiting ?? null;
     openDaysSelected.clear();
     (f.open_days ?? []).forEach((d) => openDaysSelected.add(d));
 
@@ -266,6 +285,12 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     if (minRatingInput) minRatingInput.value = minRating !== null ? String(minRating) : "";
     const maxRatingInput = document.querySelector<HTMLInputElement>("#max-rating-filter");
     if (maxRatingInput) maxRatingInput.value = maxRating !== null ? String(maxRating) : "";
+    const reservableSelect = document.querySelector<HTMLSelectElement>("#reservable-filter");
+    if (reservableSelect) reservableSelect.value = reservableFilter === null ? "all" : reservableFilter ? "true" : "false";
+    const walkinSelect = document.querySelector<HTMLSelectElement>("#walkin-filter");
+    if (walkinSelect) walkinSelect.value = walkinFilter === null ? "all" : walkinFilter ? "true" : "false";
+    const waitingSelect = document.querySelector<HTMLSelectElement>("#waiting-filter");
+    if (waitingSelect) waitingSelect.value = waitingFilter === null ? "all" : waitingFilter ? "true" : "false";
 
     render();
   }
@@ -281,6 +306,9 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     maxPrice = null;
     minRating = null;
     maxRating = null;
+    reservableFilter = null;
+    walkinFilter = null;
+    waitingFilter = null;
     openDaysSelected.clear();
 
     const nameInput = document.querySelector<HTMLInputElement>("#name-filter");
@@ -299,6 +327,12 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
     if (minRatingInput) minRatingInput.value = "";
     const maxRatingInput = document.querySelector<HTMLInputElement>("#max-rating-filter");
     if (maxRatingInput) maxRatingInput.value = "";
+    const reservableSelect = document.querySelector<HTMLSelectElement>("#reservable-filter");
+    if (reservableSelect) reservableSelect.value = "all";
+    const walkinSelect = document.querySelector<HTMLSelectElement>("#walkin-filter");
+    if (walkinSelect) walkinSelect.value = "all";
+    const waitingSelect = document.querySelector<HTMLSelectElement>("#waiting-filter");
+    if (waitingSelect) waitingSelect.value = "all";
 
     render();
   }
@@ -678,6 +712,34 @@ export function initTagFilters(tbody: HTMLTableSectionElement): void {
   if (maxRatingInput) {
     maxRatingInput.addEventListener("input", () => {
       maxRating = parseRatingInput(maxRatingInput.value);
+      applyFilter();
+    });
+  }
+
+  function parseBoolFilter(val: string): boolean | null {
+    return val === "all" ? null : val === "true";
+  }
+
+  const reservableSelect = document.querySelector<HTMLSelectElement>("#reservable-filter");
+  if (reservableSelect) {
+    reservableSelect.addEventListener("change", () => {
+      reservableFilter = parseBoolFilter(reservableSelect.value);
+      applyFilter();
+    });
+  }
+
+  const walkinSelect = document.querySelector<HTMLSelectElement>("#walkin-filter");
+  if (walkinSelect) {
+    walkinSelect.addEventListener("change", () => {
+      walkinFilter = parseBoolFilter(walkinSelect.value);
+      applyFilter();
+    });
+  }
+
+  const waitingSelect = document.querySelector<HTMLSelectElement>("#waiting-filter");
+  if (waitingSelect) {
+    waitingSelect.addEventListener("change", () => {
+      waitingFilter = parseBoolFilter(waitingSelect.value);
       applyFilter();
     });
   }

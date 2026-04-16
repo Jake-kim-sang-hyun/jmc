@@ -1,5 +1,6 @@
 import type { Restaurant, Menu, SavePayload } from "./types";
 import { buildRatingSelect } from "./rating";
+import { createAutocomplete } from "./autocomplete";
 
 function buildTagCell(
   field: string,
@@ -54,6 +55,9 @@ export function createEmptyRow(): HTMLTableRowElement {
     ${buildTagCell("categories", [], "태그 입력...")}
     ${buildTagCell("locations", [], "위치 입력...")}
     ${buildOpenDaysCell([true, true, true, true, true, true, true])}
+    <td class="col-check" data-field="reservable"><input type="checkbox" class="reservable-check"></td>
+    <td class="col-check" data-field="walkin"><input type="checkbox" class="walkin-check"></td>
+    <td class="col-check" data-field="waiting"><input type="checkbox" class="waiting-check"></td>
     <td contenteditable="true" data-field="kakao_url"></td>
     <td contenteditable="true" data-field="description"></td>
     <td class="col-last-visited" data-field="last_visited_at"><input type="date" class="last-visited-input"></td>
@@ -72,6 +76,8 @@ export function createMenuRow(): HTMLTableRowElement {
     <td contenteditable="true" data-field="menu-name"></td>
     <td contenteditable="true" data-field="menu-price"></td>
     <td data-field="menu-rating">${buildRatingSelect(0)}</td>
+    <td></td>
+    <td></td>
     <td></td>
     <td></td>
     <td></td>
@@ -177,10 +183,18 @@ function attachTagCellEvents(tr: HTMLTableRowElement): void {
     const input = cell.querySelector<HTMLInputElement>(".tag-input");
     if (!container || !input) return;
 
+    const field = cell.dataset.field ?? "";
+
     if (input.dataset.originalPlaceholder === undefined) {
       input.dataset.originalPlaceholder = input.placeholder;
     }
     refreshTagInputPlaceholder(container, input);
+
+    const ac = createAutocomplete(container, field, (value) => {
+      input.value = value;
+      ac.hide();
+      addTagFromInput(input, container, tr);
+    });
 
     let composing = false;
     input.addEventListener("compositionstart", () => {
@@ -188,15 +202,48 @@ function attachTagCellEvents(tr: HTMLTableRowElement): void {
     });
     input.addEventListener("compositionend", () => {
       composing = false;
+      ac.update(input.value.trim());
+    });
+    input.addEventListener("input", () => {
+      ac.update(input.value.trim());
     });
     input.addEventListener("keydown", (e) => {
+      if (ac.isVisible()) {
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          ac.moveDown();
+          return;
+        }
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          ac.moveUp();
+          return;
+        }
+        if (e.key === "Escape") {
+          e.preventDefault();
+          ac.hide();
+          return;
+        }
+      }
       if (composing || e.isComposing) return;
-      if (e.key === "Enter" || e.key === ",") {
+      if (e.key === "Enter") {
         e.preventDefault();
+        const selected = ac.getActiveValue();
+        if (selected) {
+          input.value = selected;
+          ac.hide();
+        }
+        addTagFromInput(input, container, tr);
+        return;
+      }
+      if (e.key === ",") {
+        e.preventDefault();
+        ac.hide();
         addTagFromInput(input, container, tr);
       }
     });
     input.addEventListener("blur", () => {
+      ac.hide();
       if (input.value.trim()) addTagFromInput(input, container, tr);
     });
     container.addEventListener("click", (e) => {
@@ -232,6 +279,10 @@ export function attachRowEvents(tr: HTMLTableRowElement): void {
   if (visitedCheck) {
     visitedCheck.addEventListener("change", () => markRowUpdated(tr));
   }
+
+  tr.querySelectorAll<HTMLInputElement>(".reservable-check, .walkin-check, .waiting-check").forEach((input) => {
+    input.addEventListener("change", () => markRowUpdated(tr));
+  });
 
   tr.querySelectorAll<HTMLInputElement>(".open-day-check").forEach((input) => {
     input.addEventListener("change", () => {
@@ -412,6 +463,13 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
     if (menu) menus.push(menu);
   }
 
+  const reservable =
+    tr.querySelector<HTMLInputElement>(".reservable-check")?.checked ?? false;
+  const walkin =
+    tr.querySelector<HTMLInputElement>(".walkin-check")?.checked ?? false;
+  const waiting =
+    tr.querySelector<HTMLInputElement>(".waiting-check")?.checked ?? false;
+
   return {
     name,
     rating,
@@ -423,6 +481,9 @@ export function readRow(tr: HTMLTableRowElement): Restaurant {
     menus,
     last_visited_at: lastVisitedAt,
     open_days: openDays,
+    reservable,
+    walkin,
+    waiting,
   };
 }
 

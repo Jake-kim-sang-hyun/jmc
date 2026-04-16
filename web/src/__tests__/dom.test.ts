@@ -106,9 +106,9 @@ describe("createEmptyRow", () => {
     expect(tr.classList.contains("restaurant-row")).toBe(true);
   });
 
-  it("11개의 td를 포함한다", () => {
+  it("14개의 td를 포함한다", () => {
     const tr = createEmptyRow();
-    expect(tr.querySelectorAll("td").length).toBe(11);
+    expect(tr.querySelectorAll("td").length).toBe(14);
   });
 
   it("rating select 드롭다운을 포함한다", () => {
@@ -166,9 +166,9 @@ describe("createMenuRow", () => {
     expect(tr.dataset.status).toBe("new-menu");
   });
 
-  it("11개의 td를 포함한다", () => {
+  it("13개의 td를 포함한다", () => {
     const tr = createMenuRow();
-    expect(tr.querySelectorAll("td").length).toBe(11);
+    expect(tr.querySelectorAll("td").length).toBe(13);
   });
 
   it("메뉴명, 가격, 소감 필드를 포함한다", () => {
@@ -224,6 +224,9 @@ describe("readRow", () => {
       menus: [],
       last_visited_at: null,
       open_days: [true, true, true, true, true, true, true],
+      reservable: false,
+      walkin: false,
+      waiting: false,
     });
   });
 

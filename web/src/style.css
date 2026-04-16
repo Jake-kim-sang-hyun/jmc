@@ -18,7 +18,8 @@ td:focus-within {
     background-color: #f0f7ff;
 }
 
-.col-visited {
+.col-visited,
+.col-check {
     width: 45px;
     text-align: center;
 }
@@ -305,6 +306,32 @@ td[data-field="menu-description"] {
 
 .tag-cell .tag-input::placeholder {
     color: #999;
+}
+
+/* Autocomplete */
+.autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.autocomplete-item {
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.autocomplete-item:hover,
+.autocomplete-active {
+    background: #e8f0fe;
 }
 
 /* Saved filters dropdown */

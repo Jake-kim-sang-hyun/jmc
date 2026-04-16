@@ -41,7 +41,10 @@ type Restaurant struct {
 	Menus         []Menu   `json:"menus"`
 	LastVisitedAt *string  `json:"last_visited_at,omitempty"`
 	// OpenDays: 월화수목금토일 순서의 7개 bool. nil이면 매일 영업으로 간주.
-	OpenDays []bool `json:"open_days,omitempty"`
+	OpenDays    []bool `json:"open_days,omitempty"`
+	Reservable  bool   `json:"reservable"`
+	Walkin      bool   `json:"walkin"`
+	Waiting     bool   `json:"waiting"`
 }
 
 func (r *Restaurant) Validate() error {
@@ -101,6 +104,9 @@ type SearchFilter struct {
 	MaxPrice     *int      `json:"max_price"`
 	MinRating    *float64  `json:"min_rating"`
 	MaxRating    *float64  `json:"max_rating"`
+	Reservable   *bool     `json:"reservable"`
+	Walkin       *bool     `json:"walkin"`
+	Waiting      *bool     `json:"waiting"`
 	// OpenDays: 선택된 요일 인덱스(0=월..6=일). 교집합 조건. 비어있으면 미적용.
 	OpenDays []int `json:"open_days"`
 }

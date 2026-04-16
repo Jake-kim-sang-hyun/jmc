@@ -18,6 +18,9 @@ export interface Restaurant {
   menus: Menu[];
   last_visited_at: string | null;
   open_days: boolean[];
+  reservable: boolean;
+  walkin: boolean;
+  waiting: boolean;
 }
 
 export interface UpdateEntry {
@@ -43,6 +46,9 @@ export interface SearchFilter {
   max_price: number | null;
   min_rating: number | null;
   max_rating: number | null;
+  reservable: boolean | null;
+  walkin: boolean | null;
+  waiting: boolean | null;
   open_days: number[];
 }
 
