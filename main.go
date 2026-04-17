@@ -53,6 +53,11 @@ func main() {
 		os.Exit(0)
 
 	//
+	case "kurimanju":
+		cmd.Kurimanju()
+		os.Exit(0)
+
+	//
 	default:
 		fmt.Fprintf(os.Stderr, "알 수 없는 명령어: %s\n", os.Args[1])
 		os.Exit(1)
