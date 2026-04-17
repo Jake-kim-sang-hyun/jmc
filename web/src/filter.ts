@@ -14,7 +14,9 @@ let maxRating: number | null = null; // null=상한 없음
 let reservableFilter: boolean | null = null;
 let walkinFilter: boolean | null = null;
 let waitingFilter: boolean | null = null;
-const openDaysSelected: Set<number> = new Set(); // 비어있으면 미적용. 교집합 조건.
+// 월=0, 화=1, ..., 일=6. Date.getDay()는 일=0이므로 +6 % 7로 변환.
+const TODAY_DAY_INDEX = (new Date().getDay() + 6) % 7;
+const openDaysSelected: Set<number> = new Set([TODAY_DAY_INDEX]); // 비어있으면 미적용. 교집합 조건. 초기에는 오늘 요일 활성화.
 
 const DAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
 
